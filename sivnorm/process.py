@@ -61,7 +61,7 @@ def cleaning(row):
         marque, modele = fuzzymatch(marque, modele)
         new_row.update({"CG_marque_modele": "{}_{}".format(marque, modele)})
         if result:
-            result = {k: unidecode(v) if type(v) == str else v for k,v in 
+            result = {k: unidecode(v) if type(v) == str else v for k,v in
                     result.items()}
             new_row.update(result)
     """
@@ -69,62 +69,75 @@ def cleaning(row):
 
 def fuzzymatch(row):
 
-    match_marque = process.extractOne(
-            row['marque'],
-            df_marque_modele['marque']
-            ) 
+    result = dict(marque='', modele='',score=0)
 
-    result = dict(marque='', modele='')
-    if match_marque and match_marque[1] > 85:
-        result['marque'] = match_marque[0] 
+    match_marque, score_marque, _ = process.extractOne(
+                                    row['marque'],
+                                    df_marque_modele['marque']
+                                    )
+    result['score'] += score_marque
+
+    if match_marque and score_marque > 85:
+        result['marque'] = match_marque
         if row['modele'] != '':
-            match_modele = process.extractOne(row['modele'], marques_dict[match_marque[0]], scorer=fuzz.partial_token_sort_ratio)
-            if match_modele and match_modele[1] > 70:
-                result['modele'] = match_modele[0]
+            match_modele, score_modele = process.extractOne(
+                            row['modele'], marques_dict[match_marque]
+                            #scorer=fuzz.partial_token_sort_ratio
+                            )
+
+            # print("%s - %s => %d"%(match_modele, row['modele'], score_modele ))
+
+            result['score'] +=  score_modele
+            if match_modele and score_modele > 70:
+
+                result['modele'] = match_modele
+
+    result['score'] = result['score']/200.
 
 
     return result
 
 
-def test_process():
-    row = dict(modele='renault clio',marque='renault')
-    assert fuzzymatch(cleaning(row)) == {"marque": "RENAULT", "modele": "CLIO"}
-    row = dict(modele='',marque='renault')
-    cleaned = cleaning(row)
-    res = fuzzymatch(cleaned) 
-    assert res == {"marque": "RENAULT", "modele": ""}, res
-
-
-func = lambda row : cleaning(fuzzymatch(row))
 
 def wrap_cleaning(key_row):
     key = key_row[0]
     row = key_row[1]
     new_row =  {'index' : key}
     cleaned = cleaning(row)
-    #res = fuzzymatch(cleaned) 
 
     new_row.update(cleaned)
+    return  cleaned
+
+
+def wrap_fuzzymatch(key_row):
+    key = key_row[0]
+    row = key_row[1]
+    new_row =  {'index' : key}
+    res = fuzzymatch(row)
+
+    #new_row.update(cleaned)
+    return  res
+
+def wrap_cleaning_fuzzymatch(key_row):
+    key = key_row[0]
+    row = key_row[1]
+    new_row =  {'index' : key}
+    cleaned = cleaning(row)
+    res = fuzzymatch(cleaned)
+    new_row.update(cleaned)
+
     return  res
 
 
-def test_process_df():
-    data = [['renault','clio'],
-            ['renault','clio2'],
-            ['renault','renault clio7']]
+def test_process():
+    row = dict(modele='renault clio',marque='renault')
+    res = fuzzymatch(cleaning(row))
+    assert res == {"marque": "RENAULT", "modele": "CLIO", "score":1}, res
+    row = dict(modele='',marque='renault')
+    cleaned = cleaning(row)
+    res = fuzzymatch(cleaned)
+    assert res == {"marque": "RENAULT", "modele": "", "score":0.5}, res
 
-    #data = int(1e6)*[['renault','clio']]
-
-    df = pd.DataFrame(columns=['marque','modele'],data=data)
-
-    pool = Pool(10)
-
-    res = pool.map(wrap_cleaning, df.iterrows())
-    print(res)
-    df_res = pd.DataFrame(res)
-   
-    print(df_res)
-    pool.close()
 
 if __name__ == '__main__':
     test_process_df()

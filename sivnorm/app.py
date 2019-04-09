@@ -44,7 +44,8 @@ def clean():
 def clean_csv():
 
     input_file = request.files['file']
-    df = pd.read_csv(input_file, names=['marque','modele'])   
+    df = pd.read_csv(input_file, names=['marque','modele'])
+    print(10*"*")
     print(df)
 
     output_file = StringIO()
@@ -54,6 +55,7 @@ def clean_csv():
     pool = Pool(32)
 
     res = pool.map(wrap_cleaning, df.iterrows())
+    print(10*'-')
     print(res)
     df_res = pd.DataFrame(res)
     pool.close()
