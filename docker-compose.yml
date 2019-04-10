@@ -18,4 +18,4 @@ services:
     volumes:
      - /home/dss:/dss
      - ./:/app
-    command: "python app.py"
+    command: "python sivnorm/app.py"
