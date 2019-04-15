@@ -17,6 +17,9 @@ export PYTHONUNBUFFERED
 dev:
 	$(COMPOSE) up
 
+build:
+	$(COMPOSE) build
+
 up:
 	$(COMPOSE) up -d
 
