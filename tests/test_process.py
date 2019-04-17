@@ -62,7 +62,17 @@ def test_app():
     df_small.to_csv(f, encoding='utf-8', index=False, header= False)
   
     files = {'file': ('file.csv', f.getvalue() )}
+    print(files)
     f.close()
+
+    url = 'http://localhost:5000/norm'
+    r = requests.post(url, files=files) 
+    print(r.text)
+
+def test_app2():
+    import requests
+
+    files = {'file': ('report.csv', 'FORD,RANGER\nSKODA,RAPID\nVOLKSWAGEN,TRANSPORTER\nCITROEN,JUMPER\nBMW,SERIE 1\nJEEP,RENEGADE\nPEUGEOT,BOXER\nTOYOTA,RAV4\nVOLKSWAGEN,TOURAN\nPEUGEOT,208\n')}
 
     url = 'http://localhost:5000/norm'
     r = requests.post(url, files=files) 
@@ -89,5 +99,5 @@ def process_df(df):
 '''
 
 if __name__ == '__main__':
-    test_app()
+    test_app2()
     #process_df_fast(df_large)

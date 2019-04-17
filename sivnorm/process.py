@@ -134,12 +134,15 @@ def df_fuzzymatch(df, num_workers):
              (df['modele'].isin(ref_marque_modele['modele']))
 
     df_diff = df[~filter]
+    
+    if df_diff.empty:
+        return df
+
     # multiprocess le fuzzy
     pool = Pool(num_workers)
     res = pool.map(wrap_fuzzymatch, df_diff.iterrows())
     df_res = pd.DataFrame(res)
     pool.close()
-
     df.loc[filter,'score'] = 1
     return pd.concat([df_res.set_index('index'), df[filter]],
                         ignore_index=False)
