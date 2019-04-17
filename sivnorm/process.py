@@ -35,7 +35,7 @@ marques_dict = {df['marque']: ref_marque_modele[ref_marque_modele['marque'] == d
 
 
 def cleaning(row):
-
+    
     marque = (row['marque'] #unidecode(row['CG_MarqueVehicule'])
               .replace('[^\w\s]','')
               .replace('_',' ')

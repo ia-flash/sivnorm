@@ -51,11 +51,14 @@ def process_csv():
 
 
     df = pd.read_csv(input_file, names=['marque','modele'])
-    print(10*"*")
+    df = df.fillna("")
+    
+    print(10*"*"+" Input "+10*"*")
     print(df)
 
     t1 = time.time()
     df = df_cleaning(df, workers)
+    print('ok')
     df_res = df_fuzzymatch(df, workers)
     sec_wl = (workers*(time.time() - t1))/(df.shape[0])
     print( "%.2f seconds per worker per line" % sec_wl )
