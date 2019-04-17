@@ -60,6 +60,9 @@ tol_marque = 0.85
 tol_modele = 0.7
 
 def fuzzymatch(row):
+    
+    if row['marque'] == "":
+        return row
 
     result = dict(marque='', modele='',score=0)
 
