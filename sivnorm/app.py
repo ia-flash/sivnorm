@@ -17,7 +17,7 @@ app = Flask(__name__)
 def status():
     return json.dumps({'status': 'ok'})
 
-def process_row():
+def process_row(table_ref_name):
     marque = request.args.get('marque',None)
     modele = request.args.get('modele',None)
     cnit = request.args.get('cnit',None)
@@ -29,7 +29,7 @@ def process_row():
 
     if marque and modele:
         cleaned = cleaning(request.args)
-        matched = fuzzymatch(cleaned)
+        matched = fuzzymatch(cleaned, table_ref_name)
         return json.dumps(matched)
 
     if cnit:
@@ -40,8 +40,8 @@ def process_row():
             modele = info.get('modele',None)
             return json.dumps(dict(marque=marque,modele=modele))
 
- 
-def process_csv():
+
+def process_csv(table_ref_name):
 
     workers = 10
     filename = "%s.csv" % ('output file')
@@ -58,7 +58,7 @@ def process_csv():
 
     t1 = time.time()
     df = df_cleaning(df, workers)
-    df_res = df_fuzzymatch(df, workers)
+    df_res = df_fuzzymatch(df, table_ref_name, workers)
     sec_wl = (workers*(time.time() - t1))/(df.shape[0])
     print( "%.2f seconds per worker per line" % sec_wl )
 
@@ -73,12 +73,12 @@ def process_csv():
 
     return resp
 
-@app.route('/norm' ,methods=['GET','POST'])
-def norm():
+@app.route('/norm/<string:table_ref_name>' ,methods=['GET','POST'])
+def norm(table_ref_name):
     if request.method == 'GET':
-        return process_row()
+        return process_row(table_ref_name)
     elif request.method == 'POST':
-        return process_csv()
+        return process_csv(table_ref_name)
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')

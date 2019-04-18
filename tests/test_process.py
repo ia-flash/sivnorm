@@ -38,13 +38,13 @@ def process_df_fast(df):
 
     df = df_cleaning(df, workers)
 
-    df_res = df_fuzzymatch(df, workers)
+    df_res = df_fuzzymatch(df, 'siv', workers)
     sec_wl = (workers*(time.time() - t1))/(df.shape[0])
 
     print( "%.2f seconds per worker per line" % sec_wl )
 
     return df_res
- 
+
 def test_process_df():
     for df in [df_small, df_large]:
         df_res = process_df_fast(df)
@@ -60,13 +60,13 @@ def test_app():
     f = StringIO()
 
     df_small.to_csv(f, encoding='utf-8', index=False, header= False)
-  
+
     files = {'file': ('file.csv', f.getvalue() )}
     print(files)
     f.close()
 
-    url = 'http://localhost:5000/norm'
-    r = requests.post(url, files=files) 
+    url = 'http://localhost:5000/norm/siv'
+    r = requests.post(url, files=files)
     print(r.text)
 
 def test_app2():
@@ -75,7 +75,7 @@ def test_app2():
     files = {'file': ('report.csv', 'FORD,RANGER\nSKODA,RAPID\nVOLKSWAGEN,TRANSPORTER\nCITROEN,JUMPER\nBMW,SERIE 1\nJEEP,RENEGADE\nPEUGEOT,BOXER\nTOYOTA,RAV4\nVOLKSWAGEN,TOURAN\nPEUGEOT,208\n')}
 
     url = 'http://localhost:5000/norm'
-    r = requests.post(url, files=files) 
+    r = requests.post(url, files=files)
     print(r.text)
 
 '''
