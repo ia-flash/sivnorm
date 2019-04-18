@@ -72,8 +72,7 @@ tol_modele = 0.7
 def fuzzymatch(row, table_ref_name='siv'):
 
     result = dict(marque='', modele='',score=0)
-    print(10*'*')
-    print(row['marque'])
+
     match_marque, score_marque, _ = process.extractOne(
                                     row['marque'],
                                     ref_marque_modele[table_ref_name]['marque']
