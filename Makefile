@@ -28,3 +28,6 @@ stop:
 
 down:
 	$(COMPOSE) down --remove-orphans
+
+logs:
+	$(COMPOSE) logs --tail 50 -f
