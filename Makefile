@@ -31,3 +31,6 @@ down:
 
 logs:
 	$(COMPOSE) logs --tail 50 -f
+
+nohup:
+	nohup python3 sivnorm/app.py > output.log &
