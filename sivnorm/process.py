@@ -63,14 +63,14 @@ replace_regex = {
 
 def cleaning(row):
 
-    marque = (row['marque'] #unidecode(row['CG_MarqueVehicule'])
+    marque = (str(row['marque']) #unidecode(row['CG_MarqueVehicule'])
               .replace('[^\w\s]','')
               .replace('_',' ')
               .upper()
               .strip()
              )
 
-    modele = (row['modele'] #unidecode(row['CG_ModeleVehicule'])
+    modele = (str(row['modele']) #unidecode(row['CG_ModeleVehicule'])
               .strip()
               .upper()
               .replace(marque, '')
