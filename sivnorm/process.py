@@ -13,14 +13,31 @@ from functools import partial
 ref_marque_modele = dict(siv=pd.read_csv('/dss/esiv_marque_modele_genre.csv'),
                         caradisiac=pd.read_csv('/dss/caradisiac_marque_modele.csv').rename(columns={'alt':'modele'}))
 
-def hash_table(x):
+def hash_table1(x):
     assert 'marque' in ref_marque_modele[x].columns
     assert 'modele' in ref_marque_modele[x].columns
 
     return  {df['marque']: ref_marque_modele[x].loc[ref_marque_modele[x]['marque'] == df['marque'],'modele'].tolist() for k, df in ref_marque_modele[x].iterrows()}
 
-marques_dict = {x:hash_table(x) for x in ['siv','caradisiac']}
+def hash_table2(x):
+    assert 'marque' in ref_marque_modele[x].columns
+    assert 'modele' in ref_marque_modele[x].columns
+    assert 'href' in ref_marque_modele[x].columns # link ref
+    assert 'src' in ref_marque_modele[x].columns # image ref source
+    gp = ref_marque_modele[x].groupby(['marque','modele'])
+    if  not (gp.size() == 1).all():
+        print("Be careful, your mapping %s is not unique"%x)
+        print("take first of :")
+        print(gp.size()[gp.size()>1])
+    # assert (gp == 1).all(),
 
+    return  gp.first().to_dict('index')
+
+# dictionnaire pour acceder rapidement à tous les modeles d'une marque
+marques_dict = {x:hash_table1(x) for x in ['siv','caradisiac']}
+
+# dictionnaire pour acceder rapidement à href et src (images de caradisiac)
+src_dict = {x:hash_table2(x) for x in ['siv','caradisiac']}
 
 replace_regex = {
     'marque': {

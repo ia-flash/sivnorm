@@ -15,7 +15,15 @@ services:
      - no_proxy=${no_proxy}
     ports:
      - ${APP_PORT}:5000
+    networks:
+     - isolated_nw
     volumes:
      - /home/dss:/dss
      - ./:/app
     command: "python sivnorm/app.py"
+
+
+networks:
+  isolated_nw:
+    external:
+     name: isolated_nw

@@ -1,9 +1,8 @@
 from flask import Flask, render_template, Response, render_template_string, send_from_directory, request, make_response
-from flask_cors import CORS
 import json
 import re
 import time
-from process import  cleaning, fuzzymatch, df_cleaning, df_fuzzymatch,  ref_marque_modele
+from process import  cleaning, fuzzymatch, df_cleaning, df_fuzzymatch,  src_dict
 
 import pandas as pd
 from io import StringIO
@@ -12,7 +11,6 @@ from multiprocessing import Pool
 
 
 app = Flask(__name__)
-CORS(app)
 
 
 @app.route('/')
@@ -81,6 +79,16 @@ def norm(table_ref_name):
         return process_row(table_ref_name)
     elif request.method == 'POST':
         return process_csv(table_ref_name)
+
+@app.route('/info/<string:table_ref_name>' ,methods=['GET'])
+def info(table_ref_name):
+
+    marque = request.args.get('marque',None)
+    modele = request.args.get('modele',None)
+
+    res_def = {'src':None,'href':None}
+    res = src_dict.get(table_ref_name,{}).get((marque,modele), res_def )
+    return json.dumps(res)
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')
