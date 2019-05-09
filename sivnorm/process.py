@@ -11,7 +11,8 @@ from functools import partial
 
 
 ref_marque_modele = dict(siv=pd.read_csv('/dss/esiv_marque_modele_genre.csv'),
-                        caradisiac=pd.read_csv('/dss/caradisiac_marque_modele.csv').rename(columns={'alt':'modele'}))
+                        caradisiac=pd.read_csv('/dss/caradisiac_marque_modele.csv').rename(columns={'alt':'modele'}),
+                        siv_caradisiac=pd.read_csv('/dss/esiv_caradisiac_marque_modele_genre.csv'))
 
 def hash_table1(x):
     assert 'marque' in ref_marque_modele[x].columns
@@ -34,16 +35,19 @@ def hash_table2(x):
     return  gp.first().to_dict('index')
 
 # dictionnaire pour acceder rapidement à tous les modeles d'une marque
-marques_dict = {x:hash_table1(x) for x in ['siv','caradisiac']}
+marques_dict = {x:hash_table1(x) for x in ['siv','caradisiac','siv_caradisiac']}
 
 # dictionnaire pour acceder rapidement à href et src (images de caradisiac)
-src_dict = {x:hash_table2(x) for x in ['siv','caradisiac']}
+src_dict = {x:hash_table2(x) for x in ['siv','caradisiac','siv_caradisiac']}
+
+reg_class = lambda x : '^(CLASSE ?)?{x} *[0-9]+(.*)'.format(x=x)
+reg_no_class = lambda x : '^(CLASSE ?){x}'.format(x=x)
 
 replace_regex = {
     'marque': {
         'BW|B\.M\.W\.|B\.M\.W|BMW I': 'BMW',
         'FIAT\.': 'FIAT',
-        'MERCEDES BENZ|MERCEDESBENZ': 'MERCEDES',
+        'MERCEDES BENZ|MERCEDESBENZ|MERCEDES-BENZ': 'MERCEDES',
         'NISSAN\.': 'NISSAN',
         'VOLKSWAGEN VW': 'VOLKSWAGEN',
         'NON DEFINI|NULL': ''
@@ -51,14 +55,26 @@ replace_regex = {
     'modele': {
         'KA\+': 'KA',
         'MEGANERTE\/|MEGANERTE': 'MEGANE',
+        'MEGANE SCENIC' : 'SCENIC',
+        'MEGANESCENIC' : 'SCENIC',
+        '(.*)ARA PIC(.*)' :  'XSARA PICASSO', # XARA PICA -> XSARA PICASSO
+        '(.*)ARAPIC(.*)' :  'XSARA PICASSO',
         #'CLIOCHIPIE|CLIOBEBOP\/|CLIORN\/RT|CLIOBACCAR': 'CLIO I',
         #'CLIOSTE': 'CLIO I',
-        'CLIORL\/RN\/|CLIORL\/RN|CLIOS': 'CLIO',
+        'CLIORL\/RN\/|CLIORL\/RN|CLIOS' : 'CLIO',
         ' III$': ' 3',
         ' IV$': ' 4',
-        'NON DEFINI|NULL': ''
+        'NON DEFINI|NULL' : '',
+        'BLUETEC|TDI|CDI' : '',
+        'REIHE' : 'SERIE'
+
+    },
+
+    'MERCEDES': {**{reg_class(x) : 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X']},
+                 **{reg_no_class(x) : '%s'%x for x in ['CL','GL','SL']}},
+
+    'RENAULT' : {' ?(SOCIETE)' : ''}
     }
-}
 
 
 def cleaning(row):
@@ -76,10 +92,16 @@ def cleaning(row):
               .replace(marque, '')
               .strip()
              )
+
     for a, b in replace_regex['marque'].items():
         marque = re.sub(a, b, marque)
     for a, b in replace_regex['modele'].items():
         modele = re.sub(a, b, modele)
+
+    # Renplacement conditionnel du modele
+    if marque in replace_regex.keys():
+        for  a, b in replace_regex[marque].items():
+            modele = re.sub(a, b, modele)
 
     return dict(marque=marque, modele=modele)
 
@@ -90,21 +112,38 @@ def fuzzymatch(row, table_ref_name='siv'):
 
     result = dict(marque='', modele='',score=0)
 
-    match_marque, score_marque, _ = process.extractOne(
-                                    row['marque'],
-                                    ref_marque_modele[table_ref_name]['marque']
-                                    )
+    try:
+        match_marque, score_marque, _ = process.extractOne(
+                                        str(row['marque']),
+                                        ref_marque_modele[table_ref_name]['marque']
+                                        )
+    except Exception as e:
+        print(e)
+        score_marque = 0
+        match_marque = None
+        print(row['marque'])
+        print('Cannot be matched with :')
+        print(ref_marque_modele[table_ref_name]['marque'])
 
     result['score'] += score_marque
 
     if match_marque and score_marque > tol_marque:
         result['marque'] = match_marque
         if row['modele'] != '':
-            match_modele, score_modele = process.extractOne(
-                                            row['modele'],
-                                            marques_dict[table_ref_name][match_marque]
-                            #scorer=fuzz.partial_token_sort_ratio
-                            )
+            try:
+                match_modele, score_modele = process.extractOne(
+                                                str(row['modele']),
+                                                marques_dict[table_ref_name][match_marque],
+                                                scorer=fuzz.ratio
+                                )
+
+            except Exception as e:
+                print(e)
+                score_modele = 0
+                match_modele = None
+                print(row['modele'])
+                print('Cannot be matched with :')
+                print(marques_dict[table_ref_name][match_marque])
 
             # print("%s - %s => %d"%(match_modele, row['modele'], score_modele ))
 

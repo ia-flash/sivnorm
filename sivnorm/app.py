@@ -18,8 +18,8 @@ def status():
     return json.dumps({'status': 'ok'})
 
 def process_row(table_ref_name):
-    marque = request.args.get('marque',None)
-    modele = request.args.get('modele',None)
+    marque = request.args.get('marque','')
+    modele = request.args.get('modele','')
     cnit = request.args.get('cnit',None)
 
 
@@ -28,7 +28,7 @@ def process_row(table_ref_name):
     print('MODELE : %s'%modele)
 
     if marque and modele:
-        cleaned = cleaning(request.args)
+        cleaned = cleaning(dict(marque=marque,modele=modele))
         matched = fuzzymatch(cleaned, table_ref_name)
         return json.dumps(matched)
 
@@ -43,7 +43,7 @@ def process_row(table_ref_name):
 
 def process_csv(table_ref_name):
 
-    workers = 10
+    workers = 16
     filename = "%s.csv" % ('output file')
 
     input_file = request.files['file']
@@ -83,12 +83,21 @@ def norm(table_ref_name):
 @app.route('/info/<string:table_ref_name>' ,methods=['GET'])
 def info(table_ref_name):
 
-    marque = request.args.get('marque',None)
-    modele = request.args.get('modele',None)
+    marque = request.args.get('marque','')
+    modele = request.args.get('modele','')
 
     res_def = {'src':None,'href':None}
     res = src_dict.get(table_ref_name,{}).get((marque,modele), res_def )
     return json.dumps(res)
+
+@app.route('/clean' ,methods=['GET'])
+def clean():
+    marque = request.args.get('marque','')
+    modele = request.args.get('modele','')
+    row = dict(marque=marque, modele=modele)
+    return json.dumps(cleaning(row))
+
+
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0')
