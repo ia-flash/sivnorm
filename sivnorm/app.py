@@ -1,4 +1,5 @@
 from flask import Flask, render_template, Response, render_template_string, send_from_directory, request, make_response
+from flask_cors import CORS
 import json
 import re
 import time
@@ -11,6 +12,7 @@ from multiprocessing import Pool
 
 
 app = Flask(__name__)
+cors = CORS(app)
 
 
 @app.route('/')
