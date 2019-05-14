@@ -9,7 +9,6 @@ import time
 data = [['renault','clio'],
         ['renault','clio2'],
         ['renault','renault clio7'],
-        ['renault','clio7 RT/RN'],
         ['renault','clio 5portes turbo'],
         ['renault','cli o'],
         ['renault','clino'],
@@ -38,7 +37,7 @@ def process_df_fast(df):
 
     df = df_cleaning(df, workers)
 
-    df_res = df_fuzzymatch(df, 'siv', workers)
+    df_res = df_fuzzymatch(df, 'caradisiac', workers)
     sec_wl = (workers*(time.time() - t1))/(df.shape[0])
 
     print( "%.2f seconds per worker per line" % sec_wl )
@@ -48,9 +47,10 @@ def process_df_fast(df):
 def test_process_df():
     for df in [df_small, df_large]:
         df_res = process_df_fast(df)
-    assert (df_res['marque'] == 'RENAULT').all(), df_res['marque'].unique()
-    assert (df_res['modele'] == 'CLIO').all(), df_res['modele'].unique()
-    assert df.shape[0] == df_res.shape[0], 'different shape, %d != %d'%(df.shape[0], df_res.shape[0])
+        print(df_res)
+        assert (df_res['marque'] == 'RENAULT').all(), df_res['marque'].unique()
+        assert (df_res['modele'] == 'CLIO').all(), df_res['modele'].unique()
+        assert df.shape[0] == df_res.shape[0], 'different shape, %d != %d'%(df.shape[0], df_res.shape[0])
 
 
 def test_app():
@@ -74,9 +74,10 @@ def test_app2():
 
     files = {'file': ('report.csv', 'FORD,RANGER\nSKODA,RAPID\nVOLKSWAGEN,TRANSPORTER\nCITROEN,JUMPER\nBMW,SERIE 1\nJEEP,RENEGADE\nPEUGEOT,BOXER\nTOYOTA,RAV4\nVOLKSWAGEN,TOURAN\nPEUGEOT,208\n')}
 
-    url = 'http://localhost:5000/norm'
+    url = 'http://localhost:5000/norm/caradisiac'
     r = requests.post(url, files=files)
     print(r.text)
+
 
 '''
 
@@ -99,5 +100,5 @@ def process_df(df):
 '''
 
 if __name__ == '__main__':
-    test_app2()
+    test_process_df()
     #process_df_fast(df_large)

@@ -34,3 +34,6 @@ logs:
 
 nohup:
 	nohup python3 sivnorm/app.py > output.log &
+
+exec:
+	$(COMPOSE) exec sivnorme bash

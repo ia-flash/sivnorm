@@ -12,8 +12,7 @@ from multiprocessing import Pool
 
 
 app = Flask(__name__)
-cors = CORS(app)
-
+CORS(app)
 
 @app.route('/')
 def status():

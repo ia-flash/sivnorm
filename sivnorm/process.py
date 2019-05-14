@@ -18,7 +18,7 @@ def hash_table1(x):
     assert 'marque' in ref_marque_modele[x].columns
     assert 'modele' in ref_marque_modele[x].columns
 
-    return  {df['marque']: ref_marque_modele[x].loc[ref_marque_modele[x]['marque'] == df['marque'],'modele'].tolist() for k, df in ref_marque_modele[x].iterrows()}
+    return ref_marque_modele[x].groupby(['marque']).apply(lambda x:x['modele'].to_list()).to_dict()
 
 def hash_table2(x):
     assert 'marque' in ref_marque_modele[x].columns
@@ -41,7 +41,7 @@ marques_dict = {x:hash_table1(x) for x in ['siv','caradisiac','siv_caradisiac']}
 src_dict = {x:hash_table2(x) for x in ['siv','caradisiac','siv_caradisiac']}
 
 reg_class = lambda x : '^(CLASSE ?)?{x} *[0-9]+(.*)'.format(x=x)
-reg_no_class = lambda x : '^(CLASSE ?){x}'.format(x=x)
+reg_no_class = lambda x : '^(CLASSE ?){x}'.format(x=x)  #'^(CLASSE ?){x}(?:\w)(.*)'
 
 replace_regex = {
     'marque': {
@@ -66,8 +66,8 @@ replace_regex = {
         ' IV$': ' 4',
         'NON DEFINI|NULL' : '',
         'BLUETEC|TDI|CDI' : '',
+        'BLUETEC|TDI|CDI' : '',
         'REIHE' : 'SERIE'
-
     },
 
     'MERCEDES': {**{reg_class(x) : 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X']},
@@ -77,16 +77,17 @@ replace_regex = {
     }
 
 
+
 def cleaning(row):
 
-    marque = (str(row['marque']) #unidecode(row['CG_MarqueVehicule'])
+    marque = (unidecode(row['marque'])
               .replace('[^\w\s]','')
               .replace('_',' ')
               .upper()
               .strip()
              )
 
-    modele = (str(row['modele']) #unidecode(row['CG_ModeleVehicule'])
+    modele = (unidecode(row['modele'])
               .strip()
               .upper()
               .replace(marque, '')
@@ -99,6 +100,7 @@ def cleaning(row):
         modele = re.sub(a, b, modele)
 
     # Renplacement conditionnel du modele
+    print(marque)
     if marque in replace_regex.keys():
         for  a, b in replace_regex[marque].items():
             modele = re.sub(a, b, modele)
@@ -134,7 +136,7 @@ def fuzzymatch(row, table_ref_name='siv'):
                 match_modele, score_modele = process.extractOne(
                                                 str(row['modele']),
                                                 marques_dict[table_ref_name][match_marque],
-                                                scorer=fuzz.ratio
+                                                scorer=fuzz.WRatio
                                 )
 
             except Exception as e:
