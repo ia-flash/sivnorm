@@ -73,107 +73,102 @@ replace_regex = {
     'MERCEDES': {**{reg_class(x) : 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X']},
                  **{reg_no_class(x) : '%s'%x for x in ['CL','GL','SL']}},
 
-    'RENAULT' : {' ?(SOCIETE)' : ''}
+    'RENAULT' : {' ?(SOCIETE)' : ''},
+    'BMW' : { '(SERIE ?){x}'.format(x=x) : '{x}'.format(x=x)  for x in ['I','M','Z','X']}
     }
 
 
 
-def cleaning(row):
+def cleaning(row, column):
+    if column == 'marque':
+        row['marque'] = (unidecode(row['marque'])
+                  .replace('[^\w\s]','')
+                  .replace('_',' ')
+                  .replace('-','')
+                  .upper()
+                  .strip()
+                 )
 
-    marque = (unidecode(row['marque'])
-              .replace('[^\w\s]','')
-              .replace('_',' ')
-              .upper()
-              .strip()
-             )
+    elif column == 'modele':
+        row['modele'] = (unidecode(row['modele'])
+                  .strip()
+                  .upper()
+                  .strip()
+                 )
 
-    modele = (unidecode(row['modele'])
-              .strip()
-              .upper()
-              .replace(marque, '')
-              .strip()
-             )
+    if row['marque'] not in ['MINI','DS'] :
+        row['modele'] = row['modele'].replace(row['marque'], '').strip()
 
-    for a, b in replace_regex['marque'].items():
-        marque = re.sub(a, b, marque)
-    for a, b in replace_regex['modele'].items():
-        modele = re.sub(a, b, modele)
+    for a, b in replace_regex[column].items():
+        row[column] = re.sub(a, b, row[column])
 
     # Renplacement conditionnel du modele
-    print(marque)
-    if marque in replace_regex.keys():
-        for  a, b in replace_regex[marque].items():
-            modele = re.sub(a, b, modele)
+    if column == 'modele':
+        if row['marque'] in replace_regex.keys():
+            for  a, b in replace_regex[row['marque']].items():
+                row['modele'] = re.sub(a, b, row['modele'])
 
-    return dict(marque=marque, modele=modele)
+    return row
 
-tol_marque = 0.85
-tol_modele = 0.7
+tol = dict(marque = 0.85, modele = 0.7)
 
-def fuzzymatch(row, table_ref_name='siv'):
+def fuzzymatch(row, column='marque', table_ref_name='siv'):
+    score = 0
+    match = ''
 
-    result = dict(marque='', modele='',score=0)
+    if row[column] == '' or (column == 'modele' and row['score_marque'] < tol['marque']):
+        row[column] = match
+        row['score_%s'%column] = score
+        return row
 
     try:
-        match_marque, score_marque, _ = process.extractOne(
-                                        str(row['marque']),
-                                        ref_marque_modele[table_ref_name]['marque']
-                                        )
+        if column == 'marque' :
+            choices = ref_marque_modele[table_ref_name][column].to_list()
+            match, score = process.extractOne(
+                                            str(row[column]),
+                                            choices,
+                                            )
+        elif column == 'modele' :
+            choices = marques_dict[table_ref_name][row['marque']]
+            match, score = process.extractOne(
+                                            str(row[column]),
+                                            choices,
+                                            scorer=fuzz.WRatio
+                            )
+
     except Exception as e:
         print(e)
-        score_marque = 0
-        match_marque = None
-        print(row['marque'])
+        print(row[column])
         print('Cannot be matched with :')
-        print(ref_marque_modele[table_ref_name]['marque'])
+        print(choices)
 
-    result['score'] += score_marque
+    # print("%s => %s (%d)"%(row[column], match, score))
 
-    if match_marque and score_marque > tol_marque:
-        result['marque'] = match_marque
-        if row['modele'] != '':
-            try:
-                match_modele, score_modele = process.extractOne(
-                                                str(row['modele']),
-                                                marques_dict[table_ref_name][match_marque],
-                                                scorer=fuzz.WRatio
-                                )
+    if score > tol[column]:
+        row[column] = match
 
-            except Exception as e:
-                print(e)
-                score_modele = 0
-                match_modele = None
-                print(row['modele'])
-                print('Cannot be matched with :')
-                print(marques_dict[table_ref_name][match_marque])
 
-            # print("%s - %s => %d"%(match_modele, row['modele'], score_modele ))
+    row['score_%s'%column] = score
 
-            result['score'] +=  score_modele
-            if match_modele and score_modele > tol_modele:
-                result['modele'] = match_modele
-
-    result['score'] = result['score']/200.
-
-    return result
+    return row
 
 
 
-def wrap_cleaning(key_row):
+def wrap_cleaning(column, key_row):
     key = key_row[0]
     row = key_row[1]
     new_row =  {'index' : key}
-    res = cleaning(row)
+    res = cleaning(row, column)
 
     new_row.update(res)
     return  new_row
 
 
-def wrap_fuzzymatch(table_ref_name, key_row):
+def wrap_fuzzymatch(table_ref_name, column, key_row):
     key = key_row[0]
     row = key_row[1]
     new_row =  {'index' : key}
-    res = fuzzymatch(row, table_ref_name)
+    res = fuzzymatch(row, column, table_ref_name)
     new_row.update(res)
     return  new_row
 
@@ -186,32 +181,47 @@ def wrap_cleaning_fuzzymatch(key_row):
     new_row.update(cleaned)
     return  new_row
 
-def df_cleaning(df, num_workers):
+def df_cleaning(df,column, num_workers):
     # multiprocess le nettoyage
     pool = Pool(num_workers)
-    res = pool.map(wrap_cleaning, df.iterrows())
+    func = partial(wrap_cleaning, column)
+    res = pool.map(func, df.iterrows())
     df_res = pd.DataFrame(res)
     pool.close()
 
-    return  df_res.set_index('index')
+    return  df_res.set_index('index').sort_index()
 
-
-def df_fuzzymatch(df, table_ref_name, num_workers):
+def df_fuzzymatch(df, column, table_ref_name, num_workers):
     # fuzzy match pour marque et modele hors des references
-    filter = (df['marque'].isin(ref_marque_modele[table_ref_name]['marque'])) &\
-             (df['modele'].isin(ref_marque_modele[table_ref_name]['modele']))
+    if column == 'marque':
+        filter = df[column].isin(ref_marque_modele[table_ref_name][column].to_list())
+    elif column == 'modele' :
+        filter =  df.eval('marque + modele').isin(ref_marque_modele[table_ref_name].eval('marque + modele'))
 
-    df_diff = df[~filter]
+    df.loc[filter,'score_%s'%column] = 100
+    df.loc[~filter,'score_%s'%column] = 0
+
     # multiprocess le fuzzy
     pool = Pool(num_workers)
-    func = partial(wrap_fuzzymatch, table_ref_name)
-    res = pool.map(func, df_diff.iterrows())
+    func = partial(wrap_fuzzymatch, table_ref_name, column)
+    res = pool.map(func, df[~filter].iterrows())
     df_res = pd.DataFrame(res)
     pool.close()
 
-    df.loc[filter,'score'] = 1
-    return pd.concat([df_res.set_index('index'), df[filter]],
-                        ignore_index=False)
+    return pd.concat([df_res, df[filter].reset_index()]).set_index('index').sort_index()
+
+
+def df_process(df, table_ref_name, num_workers):
+
+    df = df_cleaning(df,'marque',num_workers)
+    # multiprocess le fuzzy
+    df = df_fuzzymatch(df, 'marque', table_ref_name, num_workers)
+    df = df_cleaning(df,'modele',num_workers)
+    df = df_fuzzymatch(df, 'modele', table_ref_name, num_workers)
+
+    df['score'] = (df['score_marque'] +  df['score_modele']) / 200
+
+    return df[['marque','modele','score']]
 
 
 def test_process():

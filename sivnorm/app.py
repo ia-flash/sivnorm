@@ -3,7 +3,7 @@ from flask_cors import CORS
 import json
 import re
 import time
-from process import  cleaning, fuzzymatch, df_cleaning, df_fuzzymatch,  src_dict
+from process import  cleaning, fuzzymatch, df_cleaning, df_fuzzymatch,  src_dict, df_process
 
 import pandas as pd
 from io import StringIO
@@ -29,9 +29,10 @@ def process_row(table_ref_name):
     print('MODELE : %s'%modele)
 
     if marque and modele:
-        cleaned = cleaning(dict(marque=marque,modele=modele))
-        matched = fuzzymatch(cleaned, table_ref_name)
-        return json.dumps(matched)
+        row = dict(modele=modele,marque=marque)
+        for column in ['marque','modele']:
+            row = fuzzymatch(cleaning(row,column),column, table_ref_name)
+        return json.dumps(row)
 
     if cnit:
         info = dict_siv.get(cnit,None)
@@ -44,27 +45,26 @@ def process_row(table_ref_name):
 
 def process_csv(table_ref_name):
 
-    workers = 16
+    num_workers = 16
     filename = "%s.csv" % ('output file')
 
     input_file = request.files['file']
     output_file = StringIO()
 
-
     df = pd.read_csv(input_file, names=['marque','modele'])
+
     df = df.fillna("")
 
     #print(10*"*"+" Input "+10*"*")
     #print(df)
 
     t1 = time.time()
-    df = df_cleaning(df, workers)
-    df_res = df_fuzzymatch(df, table_ref_name, workers)
-    sec_wl = (workers*(time.time() - t1))/(df.shape[0])
+    df = df_process(df, table_ref_name, num_workers)
+
+    sec_wl = (num_workers*(time.time() - t1))/(df.shape[0])
     print( "%.2f seconds per worker per line" % sec_wl )
 
-
-    df_res.sort_index().to_csv(output_file, encoding='utf-8', index=False, header= False)
+    df.sort_index().to_csv(output_file, encoding='utf-8', index=False, header= False)
     output_csv = output_file.getvalue()
     output_file.close()
 
@@ -96,7 +96,11 @@ def clean():
     marque = request.args.get('marque','')
     modele = request.args.get('modele','')
     row = dict(marque=marque, modele=modele)
-    return json.dumps(cleaning(row))
+
+    for column in ['marque','modele']:
+        res = cleaning(row,column)
+
+    return json.dumps(row)
 
 
 
