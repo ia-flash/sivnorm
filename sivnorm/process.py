@@ -1,5 +1,4 @@
-import json
-import re
+import json, os, re
 from fuzzywuzzy import process, fuzz
 from unidecode import unidecode
 import pandas as pd
@@ -9,10 +8,15 @@ from functools import partial
 
 # dict_siv = pd.read_csv('/dss/esiv_by_cnit_python.csv').set_index('cnit_tvv').to_dict('index')
 
+ref_marque_modele_path = dict(siv='/dss/esiv_marque_modele_genre.csv',
+                                caradisiac='/dss/caradisiac_marque_modele.csv',
+                                siv_caradisiac='/dss/esiv_caradisiac_marque_modele_genre.csv')
 
-ref_marque_modele = dict(siv=pd.read_csv('/dss/esiv_marque_modele_genre.csv'),
-                        caradisiac=pd.read_csv('/dss/caradisiac_marque_modele.csv').rename(columns={'alt':'modele'}),
-                        siv_caradisiac=pd.read_csv('/dss/esiv_caradisiac_marque_modele_genre.csv'))
+ref_marque_modele = dict()
+for key, value in ref_marque_modele_path.items():
+    if os.path.exists(value):
+        print(key,value)
+        ref_marque_modele[key] = pd.read_csv(value).rename(columns={'alt':'modele'})
 
 def hash_table1(x):
     assert 'marque' in ref_marque_modele[x].columns
@@ -35,10 +39,10 @@ def hash_table2(x):
     return  gp.first().to_dict('index')
 
 # dictionnaire pour acceder rapidement à tous les modeles d'une marque
-marques_dict = {x:hash_table1(x) for x in ['siv','caradisiac','siv_caradisiac']}
+marques_dict = {x:hash_table1(x) for x in ref_marque_modele.keys()}
 
 # dictionnaire pour acceder rapidement à href et src (images de caradisiac)
-src_dict = {x:hash_table2(x) for x in ['siv','caradisiac','siv_caradisiac']}
+src_dict = {x:hash_table2(x) for x in ref_marque_modele.keys()}
 
 reg_class = lambda x : '^(CLASSE ?)?{x} *[0-9]+(.*)'.format(x=x)
 reg_no_class = lambda x : '^(CLASSE ?){x}'.format(x=x)  #'^(CLASSE ?){x}(?:\w)(.*)'
@@ -210,14 +214,30 @@ def df_fuzzymatch(df, column, table_ref_name, num_workers):
 
     return pd.concat([df_res, df[filter].reset_index()]).set_index('index').sort_index()
 
+dict_post_cleaning = {'caradisiac' : 
+                                {
+                                ('CITROEN', 'DS3') : ('DS', 'DS 3')
+                                }
+                    }
+
+def df_post_cleaning(df, table_ref_name):
+
+    for before, after in dict_post_cleaning.get(table_ref_name, {}).items():
+    # mitght wnat to instal numexp for optim
+        filter = df.eval('marque == "%s" and modele == "%s"'%before)
+        df.loc[filter,'marque'] = after[0]
+        df.loc[filter,'modele'] = after[1]
+
+    return df
 
 def df_process(df, table_ref_name, num_workers):
 
-    df = df_cleaning(df,'marque',num_workers)
-    # multiprocess le fuzzy
-    df = df_fuzzymatch(df, 'marque', table_ref_name, num_workers)
-    df = df_cleaning(df,'modele',num_workers)
-    df = df_fuzzymatch(df, 'modele', table_ref_name, num_workers)
+    for column in ['marque','modele']:
+        df = df_cleaning(df,column,num_workers)
+        df = df_fuzzymatch(df,column, table_ref_name, num_workers)
+        
+
+    df = df_post_cleaning(df, table_ref_name)
 
     df['score'] = (df['score_marque'] +  df['score_modele']) / 200
 
