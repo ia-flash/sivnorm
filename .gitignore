@@ -3,3 +3,4 @@ __pycache__
 conf.list
 env.list
 *.log
+dss
