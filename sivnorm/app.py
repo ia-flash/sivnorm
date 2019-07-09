@@ -2,9 +2,10 @@ import time
 import pandas as pd
 from io import StringIO
 from flask import Flask, request, send_from_directory, make_response, Blueprint, url_for
-from flask_restplus import Resource, Api, reqparse
+from flask_restplus import Resource, Api, reqparse, fields
 from flask_cors import CORS
 from process import cleaning, fuzzymatch, src_dict, df_process
+from werkzeug.datastructures import FileStorage
 from utils import timeit, logger
 
 app = Flask(__name__)
@@ -66,20 +67,16 @@ def process_row(table_ref_name, marque, modele):
 
 
 @timeit
-def process_csv(table_ref_name):
+def process_csv(table_ref_name, input_file):
 
     num_workers = 16
     filename = "%s.csv" % ('output file')
 
-    input_file = request.files['file']
     output_file = StringIO()
 
     df = pd.read_csv(input_file, names=['marque', 'modele'])
 
     df = df.fillna("")
-
-    #print(10*"*"+" Input "+10*"*")
-    #print(df)
 
     t1 = time.time()
     df = df_process(df, table_ref_name, num_workers)
@@ -99,17 +96,36 @@ def process_csv(table_ref_name):
 
 
 parser = reqparse.RequestParser()
-parser.add_argument('marque', type=str, location='args', help='Marque')
-parser.add_argument('modele', type=str, location='args', help='Modele')
+parser.add_argument('marque', type=str, location='args', help='Vehicle brand (eg: Renault)')
+parser.add_argument('modele', type=str, location='args', help='Vehicle model (eg: Clio)')
+
+parser_table = reqparse.RequestParser()
+parser_table.add_argument('file', type=FileStorage, location='files', help='CSV file with multiple brand model lines')
+
+NormOutput = api.model('NormalizedOutput', {
+    'modele': fields.String(description='Matched model', example='Renault'),
+    'marque': fields.String(description='Matched brand', example='Clio'),
+    'score_marque': fields.Integer(description='Matching score for brand', min=0, max=100, example=100),
+    'score_modele': fields.Integer(description='Matching score for model', min=0, max=100, example=100),
+    'score': fields.Float(description='Global matching score', min=0, max=1, example=1),
+})
+
+
+CleanOutput = api.model('CleanOutput', {
+    'modele': fields.String(description='Cleaned model', example='RENAULT'),
+    'marque': fields.String(description='Cleaned brand', example='CLIO'),
+})
 
 
 @api.route('/norm/<string:table_ref_name>')
-@api.doc(params={'table_ref_name': 'Reference table'})
+@api.doc(params={'table_ref_name': 'Reference table [siv,cardisiac,siv_caradisiac]'})
 class Normalization(Resource):
     """Docstring for MyClass. """
 
     @api.expect(parser)
+    @api.marshal_with(NormOutput, mask=None)
     def get(self, table_ref_name):
+        """Normalize a single brand and model using a defined referential table"""
         marque = request.args.get('marque', '')
         modele = request.args.get('modele', '')
 
@@ -117,17 +133,23 @@ class Normalization(Resource):
         logger.debug(f'MODELE: {modele}')
         return process_row(table_ref_name, marque, modele)
 
+    @api.expect(parser_table)
+    @api.response(200, description='CSV file containing matching brand model and score')
+    @api.produces(['text/csv'])
     def post(self, table_ref_name):
-        return process_csv(table_ref_name)
+        """Normalize a table of brand and model using a defined referential table"""
+        input_file = request.files['file']
+        return process_csv(table_ref_name, input_file)
 
 
 @api.route('/info/<string:table_ref_name>')
-@api.doc(params={'table_ref_name': 'Reference table'})
+@api.doc(params={'table_ref_name': 'Reference table [siv,cardisiac,siv_caradisiac]'})
 class Information(Resource):
     """Docstring for MyClass. """
 
     @api.expect(parser)
     def get(self, table_ref_name):
+        """Get brand and model image"""
         marque = request.args.get('marque', '')
         modele = request.args.get('modele', '')
 
@@ -141,7 +163,9 @@ class Clean(Resource):
     """Docstring for MyClass. """
 
     @api.expect(parser)
+    @api.marshal_with(CleanOutput, mask=None)
     def get(self):
+        """Clean brand and model field"""
         marque = request.args.get('marque', '')
         modele = request.args.get('modele', '')
         row = dict(marque=marque, modele=modele)
