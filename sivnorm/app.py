@@ -1,7 +1,7 @@
 import time
 import pandas as pd
 from io import StringIO
-from flask import Flask, request, make_response, Blueprint, url_for
+from flask import Flask, request, send_from_directory, make_response, Blueprint, url_for
 from flask_restplus import Resource, Api, reqparse
 from flask_cors import CORS
 from process import cleaning, fuzzymatch, src_dict, df_process
@@ -11,6 +11,24 @@ app.config.SWAGGER_UI_DOC_EXPANSION = 'list'
 app.config.SWAGGER_UI_OPERATION_ID = True
 app.config.SWAGGER_UI_REQUEST_DURATION = True
 CORS(app)
+
+##########################
+#  Documentation Sphinx  #
+##########################
+
+blueprint_doc = Blueprint('documentation', __name__,
+                          static_folder='../docs/build/html/_static',
+                          url_prefix='/sivnorm/docs')
+
+
+@blueprint_doc.route('/', defaults={'filename': 'index.html'})
+@blueprint_doc.route('/<path:filename>')
+def show_pages(filename):
+    return send_from_directory('../docs/build/html', filename)
+
+
+app.register_blueprint(blueprint_doc)
+
 
 #################
 #  API SWAGGER  #
@@ -53,7 +71,7 @@ def process_csv(table_ref_name):
     input_file = request.files['file']
     output_file = StringIO()
 
-    df = pd.read_csv(input_file, names=['marque','modele'])
+    df = pd.read_csv(input_file, names=['marque', 'modele'])
 
     df = df.fillna("")
 
@@ -64,9 +82,9 @@ def process_csv(table_ref_name):
     df = df_process(df, table_ref_name, num_workers)
 
     sec_wl = (num_workers*(time.time() - t1))/(df.shape[0])
-    print( "%.2f seconds per worker per line" % sec_wl )
+    print("%.2f seconds per worker per line" % sec_wl)
 
-    df.sort_index().to_csv(output_file, encoding='utf-8', index=False, header= False)
+    df.sort_index().to_csv(output_file, encoding='utf-8', index=False, header=False)
     output_csv = output_file.getvalue()
     output_file.close()
 
