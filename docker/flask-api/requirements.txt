@@ -7,3 +7,7 @@ vertica-python==0.9.0
 Unidecode==1.0.23
 pytest==4.4.0
 requests==2.21.0 
+Sphinx==2.0.1
+sphinx-autodoc-typehints==1.6.0
+flask-restplus==0.12.1
+sphinx_rtd_theme

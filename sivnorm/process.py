@@ -126,13 +126,13 @@ def fuzzymatch(row, column='marque', table_ref_name='siv'):
         return row
 
     try:
-        if column == 'marque' :
+        if column == 'marque':
             choices = ref_marque_modele[table_ref_name][column].to_list()
             match, score = process.extractOne(
                                             str(row[column]),
                                             choices,
                                             )
-        elif column == 'modele' :
+        elif column == 'modele':
             choices = marques_dict[table_ref_name][row['marque']]
             match, score = process.extractOne(
                                             str(row[column]),
