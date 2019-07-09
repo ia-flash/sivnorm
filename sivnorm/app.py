@@ -1,4 +1,3 @@
-import json
 import time
 import pandas as pd
 from io import StringIO
@@ -37,24 +36,13 @@ api = Custom_API(
 app.register_blueprint(blueprint)
 
 
-
-def process_row(table_ref_name, marque, modele, cnit):
+def process_row(table_ref_name, marque, modele):
     if marque and modele:
         row = dict(modele=modele, marque=marque)
         for column in ['marque', 'modele']:
             row = fuzzymatch(cleaning(row, column), column, table_ref_name)
         row['score'] = (row['score_marque'] + row['score_modele']) / 200
-        #return json.dumps(row)
         return row
-
-    if cnit:
-        info = dict_siv.get(cnit,None)
-        print(info)
-        if info:
-            marque = info.get('marque',None)
-            modele = info.get('modele',None)
-            #return json.dumps(dict(marque=marque,modele=modele))
-            return dict(marque=marque,modele=modele)
 
 
 def process_csv(table_ref_name):
@@ -88,10 +76,11 @@ def process_csv(table_ref_name):
 
     return resp
 
+
 parser = reqparse.RequestParser()
 parser.add_argument('marque', type=str, location='args', help='Marque')
 parser.add_argument('modele', type=str, location='args', help='Modele')
-parser.add_argument('modele', type=str, location='args', help='Modele')
+
 
 @api.route('/norm/<string:table_ref_name>')
 @api.doc(params={'table_ref_name': 'Reference table'})
@@ -102,12 +91,10 @@ class Normalization(Resource):
     def get(self, table_ref_name):
         marque = request.args.get('marque', '')
         modele = request.args.get('modele', '')
-        cnit = request.args.get('cnit', None)
 
-        print('CNIT : %s'%cnit)
         print('MARQUE : %s'%marque)
         print('MODELE : %s'%modele)
-        return process_row(table_ref_name, marque, modele, cnit)
+        return process_row(table_ref_name, marque, modele)
 
     def post(self, table_ref_name):
         return process_csv(table_ref_name)
@@ -125,7 +112,6 @@ class Information(Resource):
 
         res_def = {'src': None, 'href': None}
         res = src_dict.get(table_ref_name, {}).get((marque, modele), res_def)
-        #return json.dumps(res)
         return res
 
 
@@ -140,7 +126,6 @@ class Clean(Resource):
         row = dict(marque=marque, modele=modele)
         for column in ['marque', 'modele']:
             res = cleaning(row, column)
-        #return json.dumps(res)
         return res
 
 
