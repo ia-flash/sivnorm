@@ -5,6 +5,7 @@ from flask import Flask, request, send_from_directory, make_response, Blueprint,
 from flask_restplus import Resource, Api, reqparse
 from flask_cors import CORS
 from process import cleaning, fuzzymatch, src_dict, df_process
+from utils import timeit, logger
 
 app = Flask(__name__)
 app.config.SWAGGER_UI_DOC_EXPANSION = 'list'
@@ -54,6 +55,7 @@ api = Custom_API(
 app.register_blueprint(blueprint)
 
 
+@timeit
 def process_row(table_ref_name, marque, modele):
     if marque and modele:
         row = dict(modele=modele, marque=marque)
@@ -63,6 +65,7 @@ def process_row(table_ref_name, marque, modele):
         return row
 
 
+@timeit
 def process_csv(table_ref_name):
 
     num_workers = 16
@@ -82,7 +85,7 @@ def process_csv(table_ref_name):
     df = df_process(df, table_ref_name, num_workers)
 
     sec_wl = (num_workers*(time.time() - t1))/(df.shape[0])
-    print("%.2f seconds per worker per line" % sec_wl)
+    logger.debug(f'{sec_wl:.2f} seconds per worker per line')
 
     df.sort_index().to_csv(output_file, encoding='utf-8', index=False, header=False)
     output_csv = output_file.getvalue()
@@ -110,8 +113,8 @@ class Normalization(Resource):
         marque = request.args.get('marque', '')
         modele = request.args.get('modele', '')
 
-        print('MARQUE : %s'%marque)
-        print('MODELE : %s'%modele)
+        logger.debug(f'MARQUE: {marque}')
+        logger.debug(f'MODELE: {modele}')
         return process_row(table_ref_name, marque, modele)
 
     def post(self, table_ref_name):
