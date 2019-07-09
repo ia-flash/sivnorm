@@ -100,7 +100,7 @@ parser.add_argument('marque', type=str, location='args', help='Vehicle brand (eg
 parser.add_argument('modele', type=str, location='args', help='Vehicle model (eg: Clio)')
 
 parser_table = reqparse.RequestParser()
-parser_table.add_argument('file', type=FileStorage, location='files', help='CSV file with multiple brand model lines')
+parser_table.add_argument('file', type=FileStorage, location='files', help='CSV file with multiple brand model lines with no header. Like: \n\n renault,clio \n renault,clio2 \n audi,TTs \n renault,renault clio7 \n renault,clio7 RT/RN')
 
 NormOutput = api.model('NormalizedOutput', {
     'modele': fields.String(description='Matched model', example='Renault'),
@@ -134,7 +134,7 @@ class Normalization(Resource):
         return process_row(table_ref_name, marque, modele)
 
     @api.expect(parser_table)
-    @api.response(200, description='CSV file containing matching brand model and score')
+    @api.response(200, description='CSV file containing matching brand model and score like: \n\n RENAULT,CLIO,1.0\n RENAULT,CLIO,0.945 \n AUDI, TTS,1.0 \n RENAULT,CLIO,0.945 \n RENAULT,CLIO,0.95 \n RENAULT,CLIO,1.0')
     @api.produces(['text/csv'])
     def post(self, table_ref_name):
         """Normalize a table of brand and model using a defined referential table"""

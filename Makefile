@@ -45,3 +45,6 @@ docs: docs/html
 
 exec:
 	$(COMPOSE) exec sivnorme bash
+
+test:
+	$(COMPOSE) exec sivnorme pytest tests/check.py
