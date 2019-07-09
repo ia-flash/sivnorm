@@ -1,12 +1,11 @@
-import json, os, re
+import re
+import os
 from fuzzywuzzy import process, fuzz
 from unidecode import unidecode
 import pandas as pd
 
 from multiprocessing import Pool
 from functools import partial
-
-# dict_siv = pd.read_csv('/dss/esiv_by_cnit_python.csv').set_index('cnit_tvv').to_dict('index')
 
 ref_marque_modele_path = dict(siv='/dss/esiv_marque_modele_genre.csv',
                                 caradisiac='/dss/caradisiac_marque_modele.csv',
@@ -82,8 +81,16 @@ replace_regex = {
     }
 
 
+def cleaning(row: dict, column: str):
+    """Cleaning function
 
-def cleaning(row, column):
+    Args:
+        row: Detected boxes
+        column: Image used for detection
+
+    Returns:
+        row: Cleaned marque and model
+    """
     if column == 'marque':
         row['marque'] = (unidecode(row['marque'])
                   .replace('[^\w\s]','')
@@ -235,7 +242,6 @@ def df_process(df, table_ref_name, num_workers):
     for column in ['marque','modele']:
         df = df_cleaning(df,column,num_workers)
         df = df_fuzzymatch(df,column, table_ref_name, num_workers)
-        
 
     df = df_post_cleaning(df, table_ref_name)
 
