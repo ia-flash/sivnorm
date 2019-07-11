@@ -37,5 +37,14 @@ logs:
 nohup:
 	nohup python3 sivnorm/app.py > output.log &
 
+docs/html:
+	$(COMPOSE) exec sivnorme make -C /app/docs html
+
+docs: docs/html
+	echo "Docs"
+
 exec:
 	$(COMPOSE) exec sivnorme bash
+
+test:
+	$(COMPOSE) exec sivnorme pytest tests/check.py

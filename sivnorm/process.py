@@ -1,4 +1,5 @@
-import json, os, re
+import re
+import os
 from fuzzywuzzy import process, fuzz
 from unidecode import unidecode
 import pandas as pd
@@ -6,46 +7,54 @@ import pandas as pd
 from multiprocessing import Pool
 from functools import partial
 
-# dict_siv = pd.read_csv('/dss/esiv_by_cnit_python.csv').set_index('cnit_tvv').to_dict('index')
-
-ref_marque_modele_path = dict(siv='/dss/esiv_marque_modele_genre.csv',
-                                caradisiac='/dss/caradisiac_marque_modele.csv',
-                                siv_caradisiac='/dss/esiv_caradisiac_marque_modele_genre.csv')
+ref_marque_modele_path = dict(
+        siv='/dss/esiv_marque_modele_genre.csv',
+        caradisiac='/dss/caradisiac_marque_modele.csv',
+        siv_caradisiac='/dss/esiv_caradisiac_marque_modele_genre.csv')
 
 ref_marque_modele = dict()
 for key, value in ref_marque_modele_path.items():
     if os.path.exists(value):
-        print(key,value)
-        ref_marque_modele[key] = pd.read_csv(value).rename(columns={'alt':'modele'})
+        print(key, value)
+        ref_marque_modele[key] = pd.read_csv(value).rename(columns={'alt': 'modele'})
+
 
 def hash_table1(x):
     assert 'marque' in ref_marque_modele[x].columns
     assert 'modele' in ref_marque_modele[x].columns
 
-    return ref_marque_modele[x].groupby(['marque']).apply(lambda x:x['modele'].to_list()).to_dict()
+    return ref_marque_modele[x].groupby(['marque']).apply(lambda x: x['modele'].to_list()).to_dict()
+
 
 def hash_table2(x):
     assert 'marque' in ref_marque_modele[x].columns
     assert 'modele' in ref_marque_modele[x].columns
-    assert 'href' in ref_marque_modele[x].columns # link ref
-    assert 'src' in ref_marque_modele[x].columns # image ref source
-    gp = ref_marque_modele[x].groupby(['marque','modele'])
-    if  not (gp.size() == 1).all():
+    assert 'href' in ref_marque_modele[x].columns  # link ref
+    assert 'src' in ref_marque_modele[x].columns  # image ref source
+    gp = ref_marque_modele[x].groupby(['marque', 'modele'])
+    if not (gp.size() == 1).all():
         print("Be careful, your mapping %s is not unique"%x)
         print("take first of :")
         print(gp.size()[gp.size()>1])
     # assert (gp == 1).all(),
 
-    return  gp.first().to_dict('index')
+    return gp.first().to_dict('index')
 
 # dictionnaire pour acceder rapidement à tous les modeles d'une marque
-marques_dict = {x:hash_table1(x) for x in ref_marque_modele.keys()}
+marques_dict = {x: hash_table1(x) for x in ref_marque_modele.keys()}
 
 # dictionnaire pour acceder rapidement à href et src (images de caradisiac)
-src_dict = {x:hash_table2(x) for x in ref_marque_modele.keys()}
+src_dict = {x: hash_table2(x) for x in ref_marque_modele.keys()}
 
-reg_class = lambda x : '^(CLASSE ?)?{x} *[0-9]+(.*)'.format(x=x)
-reg_no_class = lambda x : '^(CLASSE ?){x}'.format(x=x)  #'^(CLASSE ?){x}(?:\w)(.*)'
+
+def reg_class(x):
+    return '^(CLASSE ?)?{x} *[0-9]+(.*)'.format(x=x)
+
+
+def reg_no_class(x):
+    # '^(CLASSE ?){x}(?:\w)(.*)'
+    return '^(CLASSE ?){x}'.format(x=x)
+
 
 replace_regex = {
     'marque': {
@@ -59,48 +68,56 @@ replace_regex = {
     'modele': {
         'KA\+': 'KA',
         'MEGANERTE\/|MEGANERTE': 'MEGANE',
-        'MEGANE SCENIC' : 'SCENIC',
-        'MEGANESCENIC' : 'SCENIC',
-        '(.*)ARA PIC(.*)' :  'XSARA PICASSO', # XARA PICA -> XSARA PICASSO
-        '(.*)ARAPIC(.*)' :  'XSARA PICASSO',
+        'MEGANE SCENIC': 'SCENIC',
+        'MEGANESCENIC': 'SCENIC',
+        '(.*)ARA PIC(.*)':  'XSARA PICASSO', # XARA PICA -> XSARA PICASSO
+        '(.*)ARAPIC(.*)':  'XSARA PICASSO',
         #'CLIOCHIPIE|CLIOBEBOP\/|CLIORN\/RT|CLIOBACCAR': 'CLIO I',
         #'CLIOSTE': 'CLIO I',
         'CLIORL\/RN\/|CLIORL\/RN|CLIOS' : 'CLIO',
         ' III$': ' 3',
         ' IV$': ' 4',
-        'NON DEFINI|NULL' : '',
-        'BLUETEC|TDI|CDI' : '',
-        'BLUETEC|TDI|CDI' : '',
-        'REIHE' : 'SERIE'
+        'NON DEFINI|NULL': '',
+        'BLUETEC|TDI|CDI': '',
+        'BLUETEC|TDI|CDI': '',
+        'REIHE': 'SERIE'
     },
-
-    'MERCEDES': {**{reg_class(x) : 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X']},
-                 **{reg_no_class(x) : '%s'%x for x in ['CL','GL','SL']}},
-
-    'RENAULT' : {' ?(SOCIETE)' : ''},
-    'BMW' : { '(SERIE ?){x}'.format(x=x) : '{x}'.format(x=x)  for x in ['I','M','Z','X']}
+    'MERCEDES': {**{reg_class(x): 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X']},
+                 **{reg_no_class(x): '%s'%x for x in ['CL', 'GL', 'SL']}},
+    'RENAULT': {' ?(SOCIETE)': ''},
+    'BMW': {'(SERIE ?){x}'.format(x=x): '{x}'.format(x=x) for x in ['I', 'M', 'Z', 'X']}
     }
 
 
+def cleaning(row: dict, column: str):
+    """Cleaning function
 
-def cleaning(row, column):
+    Args:
+        row: Detected boxes
+        column: Image used for detection
+
+    Returns:
+        row: Cleaned marque and model
+    """
     if column == 'marque':
-        row['marque'] = (unidecode(row['marque'])
-                  .replace('[^\w\s]','')
-                  .replace('_',' ')
-                  .replace('-','')
-                  .upper()
-                  .strip()
+        row['marque'] = (
+                unidecode(row['marque'])
+                .replace('[^\w\s]', '')
+                .replace('_', ' ')
+                .replace('-', '')
+                .upper()
+                .strip()
                  )
 
     elif column == 'modele':
-        row['modele'] = (unidecode(row['modele'])
-                  .strip()
-                  .upper()
-                  .strip()
+        row['modele'] = (
+                unidecode(row['modele'])
+                .strip()
+                .upper()
+                .strip()
                  )
 
-    if row['marque'] not in ['MINI','DS'] :
+    if row['marque'] not in ['MINI', 'DS']:
         row['modele'] = row['modele'].replace(row['marque'], '').strip()
 
     for a, b in replace_regex[column].items():
@@ -109,12 +126,14 @@ def cleaning(row, column):
     # Renplacement conditionnel du modele
     if column == 'modele':
         if row['marque'] in replace_regex.keys():
-            for  a, b in replace_regex[row['marque']].items():
+            for a, b in replace_regex[row['marque']].items():
                 row['modele'] = re.sub(a, b, row['modele'])
 
     return row
 
-tol = dict(marque = 0.85, modele = 0.7)
+
+tol = dict(marque=0.85, modele=0.7)
+
 
 def fuzzymatch(row, column='marque', table_ref_name='siv'):
     score = 0
@@ -126,13 +145,13 @@ def fuzzymatch(row, column='marque', table_ref_name='siv'):
         return row
 
     try:
-        if column == 'marque' :
+        if column == 'marque':
             choices = ref_marque_modele[table_ref_name][column].to_list()
             match, score = process.extractOne(
                                             str(row[column]),
                                             choices,
                                             )
-        elif column == 'modele' :
+        elif column == 'modele':
             choices = marques_dict[table_ref_name][row['marque']]
             match, score = process.extractOne(
                                             str(row[column]),
@@ -151,41 +170,31 @@ def fuzzymatch(row, column='marque', table_ref_name='siv'):
     if score > tol[column]:
         row[column] = match
 
-
     row['score_%s'%column] = score
 
     return row
 
 
-
 def wrap_cleaning(column, key_row):
     key = key_row[0]
     row = key_row[1]
-    new_row =  {'index' : key}
+    new_row = {'index': key}
     res = cleaning(row, column)
 
     new_row.update(res)
-    return  new_row
+    return new_row
 
 
 def wrap_fuzzymatch(table_ref_name, column, key_row):
     key = key_row[0]
     row = key_row[1]
-    new_row =  {'index' : key}
+    new_row = {'index': key}
     res = fuzzymatch(row, column, table_ref_name)
     new_row.update(res)
-    return  new_row
+    return new_row
 
-def wrap_cleaning_fuzzymatch(key_row):
-    key = key_row[0]
-    row = key_row[1]
-    new_row =  {'index' : key}
-    cleaned = cleaning(row)
-    res = fuzzymatch(cleaned)
-    new_row.update(cleaned)
-    return  new_row
 
-def df_cleaning(df,column, num_workers):
+def df_cleaning(df, column, num_workers):
     # multiprocess le nettoyage
     pool = Pool(num_workers)
     func = partial(wrap_cleaning, column)
@@ -193,14 +202,15 @@ def df_cleaning(df,column, num_workers):
     df_res = pd.DataFrame(res)
     pool.close()
 
-    return  df_res.set_index('index').sort_index()
+    return df_res.set_index('index').sort_index()
+
 
 def df_fuzzymatch(df, column, table_ref_name, num_workers):
     # fuzzy match pour marque et modele hors des references
     if column == 'marque':
         filter = df[column].isin(ref_marque_modele[table_ref_name][column].to_list())
-    elif column == 'modele' :
-        filter =  df.eval('marque + modele').isin(ref_marque_modele[table_ref_name].eval('marque + modele'))
+    elif column == 'modele':
+        filter = df.eval('marque + modele').isin(ref_marque_modele[table_ref_name].eval('marque + modele'))
 
     df.loc[filter,'score_%s'%column] = 100
     df.loc[~filter,'score_%s'%column] = 0
@@ -214,7 +224,7 @@ def df_fuzzymatch(df, column, table_ref_name, num_workers):
 
     return pd.concat([df_res, df[filter].reset_index()]).set_index('index').sort_index()
 
-dict_post_cleaning = {'caradisiac' : 
+dict_post_cleaning = {'caradisiac':
                                 {
                                 ('CITROEN', 'DS3') : ('DS', 'DS 3')
                                 }
@@ -230,29 +240,28 @@ def df_post_cleaning(df, table_ref_name):
 
     return df
 
-def df_process(df, table_ref_name, num_workers):
 
-    for column in ['marque','modele']:
-        df = df_cleaning(df,column,num_workers)
-        df = df_fuzzymatch(df,column, table_ref_name, num_workers)
-        
+def df_process(df, table_ref_name, num_workers):
+    for column in ['marque', 'modele']:
+        df = df_cleaning(df, column, num_workers)
+        df = df_fuzzymatch(df, column, table_ref_name, num_workers)
 
     df = df_post_cleaning(df, table_ref_name)
 
-    df['score'] = (df['score_marque'] +  df['score_modele']) / 200
+    df['score'] = (df['score_marque'] + df['score_modele']) / 200
 
-    return df[['marque','modele','score']]
+    return df[['marque', 'modele', 'score']]
 
 
 def test_process():
-    row = dict(modele='renault clio',marque='renault')
+    row = dict(modele='renault clio', marque='renault')
     res = fuzzymatch(cleaning(row))
-    assert res == {"marque": "RENAULT", "modele": "CLIO", "score":1}, res
-    row = dict(modele='',marque='renault')
+    assert res == {"marque": "RENAULT", "modele": "CLIO", "score": 1}, res
+    row = dict(modele='', marque='renault')
     cleaned = cleaning(row)
     res = fuzzymatch(cleaned)
-    assert res == {"marque": "RENAULT", "modele": "", "score":0.5}, res
+    assert res == {"marque": "RENAULT", "modele": "", "score": 0.5}, res
 
 
 if __name__ == '__main__':
-    test_process_df()
+    test_process()

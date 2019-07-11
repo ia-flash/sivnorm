@@ -24,7 +24,7 @@ services:
       - traefik.enable=true
       - traefik.backend=sivnorm
       - traefik.port=5000
-      - traefik.frontend.rule=PathPrefix:/norm,/info,/clean
+      - traefik.frontend.rule=PathPrefix:/sivnorm,/swaggerui
     command: "python sivnorm/app.py"
 
 networks:

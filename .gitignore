@@ -4,3 +4,5 @@ conf.list
 env.list
 *.log
 dss
+.mypy_cache
+docs/build
