@@ -103,17 +103,17 @@ parser_table = reqparse.RequestParser()
 parser_table.add_argument('file', type=FileStorage, location='files', help='CSV file with multiple brand model lines with no header. Like: \n\n renault,clio \n renault,clio2 \n audi,TTs \n renault,renault clio7 \n renault,clio7 RT/RN')
 
 NormOutput = api.model('NormalizedOutput', {
-    'modele': fields.String(description='Matched model', example='Renault'),
-    'marque': fields.String(description='Matched brand', example='Clio'),
+    'modele': fields.String(description='Matched model', example='Clio'),
+    'marque': fields.String(description='Matched brand', example='Renault'),
     'score_marque': fields.Integer(description='Matching score for brand', min=0, max=100, example=100),
     'score_modele': fields.Integer(description='Matching score for model', min=0, max=100, example=100),
-    'score': fields.Float(description='Global matching score', min=0, max=1, example=1),
+    'score': fields.Float(description='Global matching score. Combination of score_marque and score_modele', min=0, max=1, example=1),
 })
 
 
 CleanOutput = api.model('CleanOutput', {
-    'modele': fields.String(description='Cleaned model', example='RENAULT'),
-    'marque': fields.String(description='Cleaned brand', example='CLIO'),
+    'modele': fields.String(description='Cleaned model', example='CLIO'),
+    'marque': fields.String(description='Cleaned brand', example='RENAULT'),
 })
 
 
