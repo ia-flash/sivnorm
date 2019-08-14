@@ -142,7 +142,7 @@ class Normalization(Resource):
         return process_csv(table_ref_name, input_file)
 
 
-@api.route('/info/<string:table_ref_name>')
+@api.route('/info/<string:table_ref_name>', doc=False)
 @api.doc(params={'table_ref_name': 'Reference table [siv,cardisiac,siv_caradisiac]'})
 class Information(Resource):
     """Docstring for MyClass. """
