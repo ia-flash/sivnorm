@@ -1,18 +1,27 @@
-# sivnorm
+# SivNorm [![Software License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-API pour nettoyer les champs marque/modele d'une carte grise en leur affectant une réference.
+API pour nettoyer les champs marque/modèle d'une carte grise en leur affectant une référence.
 
-# Deployement
-mv docker/conf.file.sample docker/Conf.file
+Clean car make and model using a reference table.
 
+# Installation
+
+```
+mv docker/conf.file.sample docker/conf.file
 make up
+```
 
 # Utilisation
-get ../norm?modele=clio&marque=clioRT
-renvoie json
-post ../norm -file ..csv
-renvoie csv
+
+See [iaflash.fr/testapi/sivnorm](https://iaflash.fr/testapi/sivnorm)
 
 # Test
 
-Tests unitaires dans /tests
+`make test`
+
+
+# License
+
+Source code has been published using [Apache 2.0 license](LICENSE).
+
+© 2019 Agence Nationale de Traitement Automatisé des Infractions (ANTAI), Victor Journé, Cristian Brokate
