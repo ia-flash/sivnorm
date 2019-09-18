@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SivNorm
+
+  Clean car make and model using a reference table.
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 40
+    MemorySize: 512
+    Environment:
+      Variables:
+        BASE_MODEL_PATH: /tmp
+Resources:
+  SivNormGateway: 
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      DefinitionUri: ./swagger.yaml
+  NormFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: NormFunction
+      CodeUri: sivnorm/
+      Handler: lambda_function.lambda_handler_norm
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/lambda
+      Runtime: python3.7
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Layers:
+        - arn:aws:lambda:eu-west-1:016363657960:layer:pandas-layer:2
+        - arn:aws:lambda:eu-west-1:016363657960:layer:levenshtein:2
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref "SivNormGateway"
+            Path: /norm/{table_ref_name}
+            Method: GET
+        PostEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref "SivNormGateway"
+            Path: /norm/{table_ref_name}
+            Method: POST
+  CleanFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CleanFunction
+      CodeUri: sivnorm/
+      Handler: lambda_function.lambda_handler_clean
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/lambda
+      Runtime: python3.7
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Layers:
+        - arn:aws:lambda:eu-west-1:016363657960:layer:pandas-layer:2
+        - arn:aws:lambda:eu-west-1:016363657960:layer:levenshtein:2
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref "SivNormGateway"
+            Path: /clean
+            Method: GET

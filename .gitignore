@@ -7,3 +7,4 @@ dss
 .mypy_cache
 docs/build
 layers
+.aws-sam

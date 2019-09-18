@@ -4,11 +4,30 @@ import os.path as osp
 from fuzzywuzzy import process, fuzz
 from unidecode import unidecode
 import pandas as pd
-
+import boto3
 from multiprocessing import Pool
 from functools import partial
 
 dst_path = os.environ['BASE_MODEL_PATH'] # locally
+bucket_name = 'iaflash' # in s3
+src_path = 'dss' # in s3 bucket
+
+files = ['esiv_marque_modele_genre.csv', 'caradisiac_marque_modele.csv',
+         'esiv_caradisiac_marque_modele_genre.csv']
+
+if not osp.exists(dst_path):
+    print("Creating {}".format(dst_path))
+    os.makedirs(dst_path)
+
+for file in files:
+    if not osp.isfile(osp.join(dst_path, file)):
+        print("Downloading: {}".format(osp.join(src_path, file)))
+        s3 = boto3.resource('s3')
+        myobject = s3.Object(bucket_name, osp.join(src_path, file))
+        myobject.download_file(osp.join(dst_path, file))
+        print("Downloading ok\n")
+    else:
+        print("{} already exist".format(file))
 
 ref_marque_modele_path = dict(
         siv=osp.join(dst_path, 'esiv_marque_modele_genre.csv'),
@@ -19,9 +38,7 @@ ref_marque_modele_path = dict(
 ref_marque_modele = dict()
 for key, value in ref_marque_modele_path.items():
     if os.path.exists(value):
-        print(key, value)
         ref_marque_modele[key] = pd.read_csv(value).rename(columns={'alt': 'modele'})
-
 
 def hash_table1(x):
     assert 'marque' in ref_marque_modele[x].columns
@@ -167,7 +184,6 @@ def fuzzymatch(row, column='marque', table_ref_name='siv'):
         print(e)
         print(row[column])
         print('Cannot be matched with :')
-        print(choices)
 
     # print("%s => %s (%d)"%(row[column], match, score))
 
