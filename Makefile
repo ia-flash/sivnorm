@@ -74,3 +74,8 @@ sam_package:
 sam_deploy:
 	aws cloudformation deploy --template-file packaged.yaml --stack-name aws-sivnorm
 
+sam_event_generate:
+	sam local generate-event apigateway aws-proxy --body "" --path "clean" --method GET > api-event.json
+
+sam_event_invoke:
+	sam local invoke -e api-event.json CleanFunction
