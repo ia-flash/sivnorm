@@ -182,8 +182,8 @@ def fuzzymatch(row, column='marque', table_ref_name='siv'):
 
     except Exception as e:
         print(e)
-        print(row[column])
-        print('Cannot be matched with :')
+        print('Error in matching: {}'.format(column))
+        print('Input {}'.format(row[column]))
 
     # print("%s => %s (%d)"%(row[column], match, score))
 
