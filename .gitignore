@@ -8,3 +8,5 @@ dss
 docs/build
 layers
 .aws-sam
+packaged.yaml
+api-event.json
