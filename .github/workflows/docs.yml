@@ -21,6 +21,7 @@ jobs:
       - name: Build documentation
         run: |
           make -C ./docs html
+          touch ./docs/build/html/.nojekyll
         env:
           BASE_MODEL_PATH: './dss'
       - name: deploy
