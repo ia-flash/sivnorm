@@ -1,0 +1,32 @@
+name: Publish documentation
+
+on: [push]
+
+jobs:
+  build:
+    name: Publish documentation
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docker/flask-api/requirements.txt
+      - name: Build documentation
+        run: |
+          make -C ./docs html
+        env:
+          BASE_MODEL_PATH: './dss'
+      - name: deploy
+        uses: docker://peaceiris/gh-pages:v2.3.2
+        if: success()
+        env:
+          ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: ./docs/build/html
