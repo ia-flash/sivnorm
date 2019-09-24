@@ -38,3 +38,5 @@ jobs:
         run: |
           pip install pytest
           pytest tests/check.py
+        env:
+          BASE_MODEL_PATH: './dss'
