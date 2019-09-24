@@ -1,5 +1,6 @@
 import re
 import os
+import os.path as osp
 from fuzzywuzzy import process, fuzz
 from unidecode import unidecode
 import pandas as pd
@@ -7,10 +8,13 @@ import pandas as pd
 from multiprocessing import Pool
 from functools import partial
 
+dst_path = os.environ['BASE_MODEL_PATH'] # locally
+
 ref_marque_modele_path = dict(
-        siv='/dss/esiv_marque_modele_genre.csv',
-        caradisiac='/dss/caradisiac_marque_modele.csv',
-        siv_caradisiac='/dss/esiv_caradisiac_marque_modele_genre.csv')
+        siv=osp.join(dst_path, 'esiv_marque_modele_genre.csv'),
+        caradisiac=osp.join(dst_path, 'caradisiac_marque_modele.csv'),
+        siv_caradisiac=osp.join(dst_path, 'esiv_caradisiac_marque_modele_genre.csv')
+        )
 
 ref_marque_modele = dict()
 for key, value in ref_marque_modele_path.items():
