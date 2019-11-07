@@ -16,13 +16,27 @@ export DSS_PATH
 PYTHONUNBUFFERED=1
 export PYTHONUNBUFFERED
 
-dev:
+docker/env.list:
+	# Copy default config
+	cp docker/env.list.sample docker/env.list
+
+docker/conf.list:
+	# Copy default config
+	cp docker/conf.list.sample docker/conf.list
+
+network:
+	docker network create isolated_nw 2> /dev/null; true
+
+dss:
+	aws s3 cp s3://dss ${BASE_MODEL_PATH} --recursive 
+
+dev: network docker/env.list docker/conf.list
 	$(COMPOSE) up
 
 build:
 	$(COMPOSE) build
 
-up:
+up: network docker/env.list docker/conf.list
 	$(COMPOSE) up -d
 
 stop:
