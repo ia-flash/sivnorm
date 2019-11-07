@@ -10,7 +10,7 @@ export COMPOSE
 export APP_PORT
 export no_proxy
 export http_proxy
-export DSS_PATH
+export BASE_MODEL_PATH
 # this is usefull with most python apps in dev mode because if stdout is
 # buffered logs do not shows in realtime
 PYTHONUNBUFFERED=1
