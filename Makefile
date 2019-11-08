@@ -77,16 +77,17 @@ layer_publish: layer_build
 	aws lambda publish-layer-version --layer-name levenshtein --zip-file fileb://layers/levenshtein/levenshtein.zip --compatible-runtimes python3.7
 
 sam_build:
-	sam build
+	cp sivnorm aws_lambda -r;cd aws_lambda;sam build
 
 sam_local:
 	sam local start-api
 
 sam_package:
-	sam package --template-file template.yaml --s3-bucket iaflash --output-template-file packaged.yaml
+	sam package --template-file aws_lambda/template.yaml --s3-bucket iaflash --output-template-file aws_lambda/packaged.yaml
 
 sam_deploy:
-	aws cloudformation deploy --template-file packaged.yaml --stack-name aws-sivnorm
+	aws cloudformation delete-stack --stack-name sivnorm;sleep 15;\
+	aws cloudformation deploy --template-file aws_lambda/packaged.yaml --stack-name sivnorm
 
 sam_event_generate:
 	sam local generate-event apigateway aws-proxy --body "" --path "clean" --method GET > api-event.json

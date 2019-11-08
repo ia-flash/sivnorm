@@ -1,7 +1,7 @@
 import re
 import json
 import pandas as pd
-from process import cleaning, fuzzymatch, df_process
+from sivnorm.process import cleaning, fuzzymatch, df_process
 import base64
 
 
