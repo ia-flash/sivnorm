@@ -18,6 +18,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r docker/flask-api/requirements.txt
+          cp -r sivnorm aws_lambda
       - uses: ia-flash/s3-download-action@master
         with:
           args:
