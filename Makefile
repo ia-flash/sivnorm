@@ -61,7 +61,8 @@ exec:
 	$(COMPOSE) exec sivnorme bash
 
 test:
-	$(COMPOSE) exec sivnorme pytest tests/check.py
+	#$(COMPOSE) exec sivnorme pytest tests/check.py
+	$(COMPOSE) exec sivnorme pytest tests/
 
 layer_clean:
 	sudo rm -rf ./layers
@@ -70,13 +71,14 @@ layer_dir: layer_clean
 	mkdir -p layers/levenshtein/python
 
 layer_build: layer_dir
-	$(COMPOSE) exec sivnorme pip3 install python-Levenshtein==0.12.0 vertica-python==0.9.0 Unidecode==1.0.23 fuzzywuzzy==0.17.0 -t layers/levenshtein/python
+	$(COMPOSE) exec sivnorme pip3 install python-Levenshtein==0.12.0 requests-toolbelt==0.9.1 vertica-python==0.9.0 Unidecode==1.0.23 fuzzywuzzy==0.17.0 -t layers/levenshtein/python
 	cd layers/levenshtein; zip -r levenshtein.zip python; cd ../..;
 
 layer_publish: layer_build
 	aws lambda publish-layer-version --layer-name levenshtein --zip-file fileb://layers/levenshtein/levenshtein.zip --compatible-runtimes python3.7
 
 sam_build:
+	rm -rf aws_lambda/sivnorm
 	cp sivnorm aws_lambda -r;cd aws_lambda;sam build
 
 sam_local:

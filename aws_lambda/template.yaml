@@ -19,6 +19,8 @@ Resources:
     Properties:
       StageName: Prod
       DefinitionUri: ./swagger.yaml
+      BinaryMediaTypes:
+         - multipart~1form-data
   NormFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -31,7 +33,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
       Layers:
         - arn:aws:lambda:eu-west-1:016363657960:layer:pandas-layer:2
-        - arn:aws:lambda:eu-west-1:016363657960:layer:levenshtein:2
+        - arn:aws:lambda:eu-west-1:016363657960:layer:levenshtein:4
       Events:
         GetEvent:
           Type: Api
@@ -57,7 +59,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
       Layers:
         - arn:aws:lambda:eu-west-1:016363657960:layer:pandas-layer:2
-        - arn:aws:lambda:eu-west-1:016363657960:layer:levenshtein:2
+        - arn:aws:lambda:eu-west-1:016363657960:layer:levenshtein:4
       Events:
         GetEvent:
           Type: Api

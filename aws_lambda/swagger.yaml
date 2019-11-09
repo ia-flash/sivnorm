@@ -27,15 +27,11 @@ paths:
         basic:
           validateRequestParameters: true
       x-amazon-apigateway-integration:
-        type: "aws"
+        type: "aws_proxy"
         httpMethod: "POST"
         # Replace AWS_REGION and ACCOUNT_ID in uri
         uri: "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:016363657960:function:CleanFunction/invocations"
-        responses:
-          default:
-            statusCode: 200
-        requestTemplates:
-          application/json: "{\r\n  \"method\": \"$context.httpMethod\",\r\n  \"body\" : \"$input.body\",\r\n  \"headers\": {\r\n    #foreach($param in $input.params().header.keySet())\r\n    \"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\r\n\r\n    #end\r\n  },\r\n  \"queryStringParameters\": {\r\n    #foreach($param in $input.params().querystring.keySet())\r\n    \"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\r\n\r\n    #end\r\n  },\r\n  \"pathParameters\": {\r\n    #foreach($param in $input.params().path.keySet())\r\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\r\n\r\n    #end\r\n  }  \r\n}"
+
   "/norm/{table_ref_name}":
     parameters:
     - description: Reference table [siv,cardisiac,siv_caradisiac]
@@ -49,10 +45,6 @@ paths:
           description: "CSV file containing matching brand model and score like: \n\n
             RENAULT,CLIO,1.0\n RENAULT,CLIO,0.945 \n AUDI, TTS,1.0 \n RENAULT,CLIO,0.945
             \n RENAULT,CLIO,0.95 \n RENAULT,CLIO,1.0"
-          responseParameters:
-            method.response.header.Content-disposition: "'attachment; filename=testing.csv'"
-          responseTemplates:
-            text/csv: "$input.body" # .replaceAll(\"\\\"\"\",\"\")
       summary: Normalize a table of brand and model using a defined referential table
       operationId: post_normalization
       parameters:
@@ -73,19 +65,13 @@ paths:
         basic:
           validateRequestParameters: true
       x-amazon-apigateway-binary-media-types:
-        - multipart/form-data
+        - '*/*'
       x-amazon-apigateway-integration:
-        type: "aws"
+        type: "aws_proxy"
         httpMethod: "POST"
         # Replace AWS_REGION and ACCOUNT_ID in uri
         uri: "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:016363657960:function:NormFunction/invocations"
-        contentHandling: "CONVERT_TO_TEXT"
-        passthroughBehavior: "WHEN_NO_TEMPLATES"
-        responses:
-          default:
-            statusCode: 200
-        requestTemplates:
-          multipart/form-data: "{\r\n  \"httpMethod\": \"$context.httpMethod\",\r\n  \"body\" : \"$input.body\",\r\n  \"headers\": {\r\n    #foreach($param in $input.params().header.keySet())\r\n    \"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\r\n\r\n    #end\r\n  },\r\n  \"queryStringParameters\": {\r\n    #foreach($param in $input.params().querystring.keySet())\r\n    \"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\r\n\r\n    #end\r\n  },\r\n  \"pathParameters\": {\r\n    #foreach($param in $input.params().path.keySet())\r\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\r\n\r\n    #end\r\n  }  \r\n}"
+
     get:
       responses:
         '200':
@@ -110,15 +96,11 @@ paths:
         basic:
           validateRequestParameters: true
       x-amazon-apigateway-integration:
-        type: "aws"
+        type: "aws_proxy"
         httpMethod: "POST"
         # Replace AWS_REGION and ACCOUNT_ID in uri
         uri: "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:016363657960:function:NormFunction/invocations"
-        responses:
-          default:
-            statusCode: 200
-        requestTemplates:
-          application/json: "{\r\n  \"method\": \"$context.httpMethod\",\r\n  \"body\" : \"$input.body\",\r\n  \"headers\": {\r\n    #foreach($param in $input.params().header.keySet())\r\n    \"$param\": \"$util.escapeJavaScript($input.params().header.get($param))\" #if($foreach.hasNext),#end\r\n\r\n    #end\r\n  },\r\n  \"queryStringParameters\": {\r\n    #foreach($param in $input.params().querystring.keySet())\r\n    \"$param\": \"$util.escapeJavaScript($input.params().querystring.get($param))\" #if($foreach.hasNext),#end\r\n\r\n    #end\r\n  },\r\n  \"pathParameters\": {\r\n    #foreach($param in $input.params().path.keySet())\r\n    \"$param\": \"$util.escapeJavaScript($input.params().path.get($param))\" #if($foreach.hasNext),#end\r\n\r\n    #end\r\n  }  \r\n}"
+
 info:
   title: SivNorm
   version: '1.0'

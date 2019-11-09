@@ -215,13 +215,16 @@ def wrap_fuzzymatch(table_ref_name, column, key_row):
 
 
 def df_cleaning(df, column, num_workers):
-    # multiprocess le nettoyage
-    pool = Pool(num_workers)
-    func = partial(wrap_cleaning, column)
-    res = pool.map(func, df.iterrows())
-    df_res = pd.DataFrame(res)
-    pool.close()
+    if num_workers == 0:
+        res = [wrap_cleaning(column, key_row) for key_row in df.iterrows()]
+    else:
+        # multiprocess le nettoyage
+        pool = Pool(num_workers)
+        func = partial(wrap_cleaning, column)
+        res = pool.map(func, df.iterrows())
+        pool.close()
 
+    df_res = pd.DataFrame(res)
     return df_res.set_index('index').sort_index()
 
 
@@ -235,13 +238,16 @@ def df_fuzzymatch(df, column, table_ref_name, num_workers):
     df.loc[filter,'score_%s'%column] = 100
     df.loc[~filter,'score_%s'%column] = 0
 
-    # multiprocess le fuzzy
-    pool = Pool(num_workers)
-    func = partial(wrap_fuzzymatch, table_ref_name, column)
-    res = pool.map(func, df[~filter].iterrows())
-    df_res = pd.DataFrame(res)
-    pool.close()
+    if num_workers == 0:
+        res = [wrap_fuzzymatch(table_ref_name, column, key_row) for key_row in df.iterrows()]
+    else:
+        # multiprocess le fuzzy
+        pool = Pool(num_workers)
+        func = partial(wrap_fuzzymatch, table_ref_name, column)
+        res = pool.map(func, df[~filter].iterrows())
+        pool.close()
 
+    df_res = pd.DataFrame(res)
     return pd.concat([df_res, df[filter].reset_index()]).set_index('index').sort_index()
 
 dict_post_cleaning = {'caradisiac':
@@ -250,13 +256,13 @@ dict_post_cleaning = {'caradisiac':
                                 }
                     }
 
-def df_post_cleaning(df, table_ref_name):
 
+def df_post_cleaning(df, table_ref_name):
     for before, after in dict_post_cleaning.get(table_ref_name, {}).items():
-    # mitght wnat to instal numexp for optim
+        # mitght wnat to instal numexp for optim
         filter = df.eval('marque == "%s" and modele == "%s"'%before)
-        df.loc[filter,'marque'] = after[0]
-        df.loc[filter,'modele'] = after[1]
+        df.loc[filter, 'marque'] = after[0]
+        df.loc[filter, 'modele'] = after[1]
 
     return df
 
