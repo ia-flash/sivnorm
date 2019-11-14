@@ -40,4 +40,4 @@ jobs:
           pip install pytest
           pytest tests/
         env:
-          BASE_MODEL_PATH: './dss'
+          BASE_MODEL_PATH: '/home/runner/work/sivnorm/sivnorm/dss'
