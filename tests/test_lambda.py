@@ -1,17 +1,38 @@
 import os
 import sys
 import json
-sys.path.append(os.path.join(os.path.dirname(__file__),'../aws_lambda'))
+import base64
+import pandas as pd
+from io import StringIO
+from requests_toolbelt.multipart.encoder import MultipartEncoder
+sys.path.append(os.path.join(os.path.dirname(__file__), '../aws_lambda'))
 from lambda_function import lambda_handler_norm, lambda_handler_clean
 
 
-def test_norm_post(apigateway_event):
-    resp = lambda_handler_norm(apigateway_event, None)
+def test_norm_post():
+    path_table = "tests/test_small.csv"
+    mp_encoder = MultipartEncoder(
+            fields={'file': ('filename', open(path_table, "rb"), 'text/csv'),
+                    })
+    body = mp_encoder.to_string()
+    print('form-data is :')
+    print(body[:100])
+    body = base64.b64encode(body)
+    event = dict(httpMethod='POST',
+                 path='/norm',
+                 pathParameters=dict(table_ref_name='caradisiac'),
+                 headers={'content-type': mp_encoder.content_type},
+                 body=body)
+    resp = lambda_handler_norm(event, None)
     body = resp['body']
-    print('thisbody')
-    print(body)
     assert resp['statusCode'] == 200
-    assert 'renault' in body, 'There is no clio in predictions {}'.format(body)
+    df_in = pd.read_csv(path_table, header=None)
+    df_out = pd.read_csv(StringIO(body), header=None)
+    print(df_in)
+    print(df_out)
+    assert df_in.shape[0] == df_out.shape[0]
+    assert (df_in.shape[1] + 1) == df_out.shape[1]
+    assert 'renault' in body, 'There is no renault in predictions {}'.format(body)
 
 
 def test_norm_get():
