@@ -91,8 +91,8 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#contents">Contents</a><ul>
-<li><a class="reference internal" href="#main-app">Main app</a></li>
-<li><a class="reference internal" href="#process-function">Process function</a></li>
+<li><a class="reference internal" href="#module-app">Main app</a></li>
+<li><a class="reference internal" href="#module-process">Process function</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -246,11 +246,89 @@ make sam_deploy
 <div class="section" id="contents">
 <h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
 <p>Application modules</p>
-<div class="section" id="main-app">
-<h2>Main app<a class="headerlink" href="#main-app" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-app">
+<span id="main-app"></span><h2>Main app<a class="headerlink" href="#module-app" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="app.Clean">
+<em class="property">class </em><code class="descclassname">app.</code><code class="descname">Clean</code><span class="sig-paren">(</span><em>api=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Docstring for MyClass.</p>
+<dl class="method">
+<dt id="app.Clean.get">
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.Clean.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean brand and model field</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.Custom_API">
+<em class="property">class </em><code class="descclassname">app.</code><code class="descname">Custom_API</code><span class="sig-paren">(</span><em>app=None</em>, <em>version='1.0'</em>, <em>title=None</em>, <em>description=None</em>, <em>terms_url=None</em>, <em>license=None</em>, <em>license_url=None</em>, <em>contact=None</em>, <em>contact_url=None</em>, <em>contact_email=None</em>, <em>authorizations=None</em>, <em>security=None</em>, <em>doc='/'</em>, <em>default_id=&lt;function default_id&gt;</em>, <em>default='default'</em>, <em>default_label='Default namespace'</em>, <em>validate=None</em>, <em>tags=None</em>, <em>prefix=''</em>, <em>ordered=False</em>, <em>default_mediatype='application/json'</em>, <em>decorators=None</em>, <em>catch_all_404s=False</em>, <em>serve_challenge_on_401=False</em>, <em>format_checker=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Custom_API" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="app.Custom_API.specs_url">
+<code class="descname">specs_url</code><a class="headerlink" href="#app.Custom_API.specs_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Swagger specifications absolute url (ie. <cite>swagger.json</cite>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.Information">
+<em class="property">class </em><code class="descclassname">app.</code><code class="descname">Information</code><span class="sig-paren">(</span><em>api=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Docstring for MyClass.</p>
+<dl class="method">
+<dt id="app.Information.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>table_ref_name</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Information.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get brand and model image</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.Normalization">
+<em class="property">class </em><code class="descclassname">app.</code><code class="descname">Normalization</code><span class="sig-paren">(</span><em>api=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Normalization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Docstring for MyClass.</p>
+<dl class="method">
+<dt id="app.Normalization.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>table_ref_name</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Normalization.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize a single brand and model using a defined referential table</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.Normalization.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>table_ref_name</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Normalization.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize a table of brand and model using a defined referential table</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="process-function">
-<h2>Process function<a class="headerlink" href="#process-function" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-process">
+<span id="process-function"></span><h2>Process function<a class="headerlink" href="#module-process" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="process.cleaning">
+<code class="descclassname">process.</code><code class="descname">cleaning</code><span class="sig-paren">(</span><em>row</em>, <em>column</em><span class="sig-paren">)</span><a class="headerlink" href="#process.cleaning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleaning function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>row</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Detected boxes</p></li>
+<li><p><strong>column</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Image used for detection</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Cleaned marque and model</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>row</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="indices-and-tables">
