@@ -20,11 +20,13 @@ if not osp.exists(dst_path):
     os.makedirs(dst_path)
 
 for file in files:
-    if not osp.isfile(osp.join(dst_path, file)):
+    dst_path_abs = osp.join(dst_path, file)
+    print("Checking for {}".format(dst_path_abs))
+    if not osp.isfile(dst_path_abs):
         print("Downloading: {}".format(osp.join(src_path, file)))
         s3 = boto3.resource('s3')
         myobject = s3.Object(bucket_name, osp.join(src_path, file))
-        myobject.download_file(osp.join(dst_path, file))
+        myobject.download_file(dst_path_abs)
         print("Downloading ok\n")
     else:
         print("{} already exist".format(file))

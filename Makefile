@@ -90,6 +90,7 @@ sam_package:
 sam_deploy:
 	aws cloudformation delete-stack --stack-name sivnorm;sleep 15;\
 	aws cloudformation deploy --template-file aws_lambda/packaged.yaml --stack-name sivnorm
+	aws apigateway get-rest-apis
 
 sam_event_generate:
 	sam local generate-event apigateway aws-proxy --body "" --path "clean" --method GET > api-event.json
