@@ -6,3 +6,8 @@ env.list
 dss
 .mypy_cache
 docs/build
+layers
+.aws-sam
+packaged.yaml
+api-event.json
+aws_lambda/sivnorm

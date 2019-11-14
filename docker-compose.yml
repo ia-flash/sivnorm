@@ -13,12 +13,13 @@ services:
      - http_proxy=${http_proxy}
      - https_proxy=${http_proxy}
      - no_proxy=${no_proxy}
+     - BASE_MODEL_PATH=${BASE_MODEL_PATH}
     ports:
      - ${APP_PORT}:5000
     networks:
      - isolated_nw
     volumes:
-     - ${DSS_PATH}:/dss
+     - ${BASE_MODEL_PATH}:/dss
      - ./:/app
     labels:
       - traefik.enable=true

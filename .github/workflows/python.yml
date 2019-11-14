@@ -18,6 +18,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r docker/flask-api/requirements.txt
+          cp -r sivnorm aws_lambda
       - uses: ia-flash/s3-download-action@master
         with:
           args:
@@ -37,6 +38,6 @@ jobs:
       - name: Test with pytest
         run: |
           pip install pytest
-          pytest tests/check.py
+          pytest tests/
         env:
           BASE_MODEL_PATH: './dss'

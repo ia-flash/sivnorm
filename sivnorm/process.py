@@ -4,11 +4,30 @@ import os.path as osp
 from fuzzywuzzy import process, fuzz
 from unidecode import unidecode
 import pandas as pd
-
+import boto3
 from multiprocessing import Pool
 from functools import partial
 
 dst_path = os.environ['BASE_MODEL_PATH'] # locally
+bucket_name = 'iaflash' # in s3
+src_path = 'dss' # in s3 bucket
+
+files = ['esiv_marque_modele_genre.csv', 'caradisiac_marque_modele.csv',
+         'esiv_caradisiac_marque_modele_genre.csv']
+
+if not osp.exists(dst_path):
+    print("Creating {}".format(dst_path))
+    os.makedirs(dst_path)
+
+for file in files:
+    if not osp.isfile(osp.join(dst_path, file)):
+        print("Downloading: {}".format(osp.join(src_path, file)))
+        s3 = boto3.resource('s3')
+        myobject = s3.Object(bucket_name, osp.join(src_path, file))
+        myobject.download_file(osp.join(dst_path, file))
+        print("Downloading ok\n")
+    else:
+        print("{} already exist".format(file))
 
 ref_marque_modele_path = dict(
         siv=osp.join(dst_path, 'esiv_marque_modele_genre.csv'),
@@ -19,9 +38,7 @@ ref_marque_modele_path = dict(
 ref_marque_modele = dict()
 for key, value in ref_marque_modele_path.items():
     if os.path.exists(value):
-        print(key, value)
         ref_marque_modele[key] = pd.read_csv(value).rename(columns={'alt': 'modele'})
-
 
 def hash_table1(x):
     assert 'marque' in ref_marque_modele[x].columns
@@ -165,9 +182,8 @@ def fuzzymatch(row, column='marque', table_ref_name='siv'):
 
     except Exception as e:
         print(e)
-        print(row[column])
-        print('Cannot be matched with :')
-        print(choices)
+        print('Error in matching: {}'.format(column))
+        print('Input {}'.format(row[column]))
 
     # print("%s => %s (%d)"%(row[column], match, score))
 
@@ -199,13 +215,16 @@ def wrap_fuzzymatch(table_ref_name, column, key_row):
 
 
 def df_cleaning(df, column, num_workers):
-    # multiprocess le nettoyage
-    pool = Pool(num_workers)
-    func = partial(wrap_cleaning, column)
-    res = pool.map(func, df.iterrows())
-    df_res = pd.DataFrame(res)
-    pool.close()
+    if num_workers == 0:
+        res = [wrap_cleaning(column, key_row) for key_row in df.iterrows()]
+    else:
+        # multiprocess le nettoyage
+        pool = Pool(num_workers)
+        func = partial(wrap_cleaning, column)
+        res = pool.map(func, df.iterrows())
+        pool.close()
 
+    df_res = pd.DataFrame(res)
     return df_res.set_index('index').sort_index()
 
 
@@ -219,13 +238,16 @@ def df_fuzzymatch(df, column, table_ref_name, num_workers):
     df.loc[filter,'score_%s'%column] = 100
     df.loc[~filter,'score_%s'%column] = 0
 
-    # multiprocess le fuzzy
-    pool = Pool(num_workers)
-    func = partial(wrap_fuzzymatch, table_ref_name, column)
-    res = pool.map(func, df[~filter].iterrows())
-    df_res = pd.DataFrame(res)
-    pool.close()
+    if num_workers == 0:
+        res = [wrap_fuzzymatch(table_ref_name, column, key_row) for key_row in df.iterrows()]
+    else:
+        # multiprocess le fuzzy
+        pool = Pool(num_workers)
+        func = partial(wrap_fuzzymatch, table_ref_name, column)
+        res = pool.map(func, df[~filter].iterrows())
+        pool.close()
 
+    df_res = pd.DataFrame(res)
     return pd.concat([df_res, df[filter].reset_index()]).set_index('index').sort_index()
 
 dict_post_cleaning = {'caradisiac':
@@ -234,13 +256,13 @@ dict_post_cleaning = {'caradisiac':
                                 }
                     }
 
-def df_post_cleaning(df, table_ref_name):
 
+def df_post_cleaning(df, table_ref_name):
     for before, after in dict_post_cleaning.get(table_ref_name, {}).items():
-    # mitght wnat to instal numexp for optim
+        # mitght wnat to instal numexp for optim
         filter = df.eval('marque == "%s" and modele == "%s"'%before)
-        df.loc[filter,'marque'] = after[0]
-        df.loc[filter,'modele'] = after[1]
+        df.loc[filter, 'marque'] = after[0]
+        df.loc[filter, 'modele'] = after[1]
 
     return df
 
