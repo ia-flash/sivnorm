@@ -10,9 +10,11 @@ API pour nettoyer les champs marque/modèle d'une carte grise en leur affectant 
 
 Clean car make and model using a reference table.
 
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
 
 Structure
 ---------
@@ -87,10 +89,10 @@ Install docker-compose
   sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
 
-Install using aws
------------------
+Deploy aws lambda function
+--------------------------
 
-Using AWS 
+AWS SAM is used to deploy lambda application. These functions have been compiled in the Makefile
 
 .. code:: bash
 
@@ -99,13 +101,19 @@ Using AWS
     make sam_deploy
 
 
-Contents
-========
+API
+===
+
+.. openapi:: _static/swagger.json
+
+
+Functions Documentation
+=======================
 
 Application modules
 
-Main app
---------
+Flask application
+-----------------
 
 .. automodule:: app
     :members:
@@ -115,11 +123,3 @@ Process function
 
 .. automodule:: process
     :members:
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

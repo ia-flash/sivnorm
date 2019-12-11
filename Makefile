@@ -52,6 +52,7 @@ nohup:
 	nohup python3 sivnorm/app.py > output.log &
 
 docs/html:
+	$(COMPOSE) exec sivnorme python sivnorm/export_swagger.py
 	$(COMPOSE) exec sivnorme make -C /app/docs html
 
 docs: docs/html
