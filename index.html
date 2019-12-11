@@ -87,15 +87,15 @@
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#install-docker">Install docker</a></li>
 <li><a class="reference internal" href="#install-docker-compose">Install docker-compose</a></li>
-<li><a class="reference internal" href="#install-using-aws">Install using aws</a></li>
+<li><a class="reference internal" href="#deploy-aws-lambda-function">Deploy aws lambda function</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#contents">Contents</a><ul>
-<li><a class="reference internal" href="#module-app">Main app</a></li>
+<li><a class="reference internal" href="#api">API</a></li>
+<li><a class="reference internal" href="#functions-documentation">Functions Documentation</a><ul>
+<li><a class="reference internal" href="#module-app">Flask application</a></li>
 <li><a class="reference internal" href="#module-process">Process function</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 </div>
             
@@ -233,9 +233,9 @@ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 </pre></div>
 </div>
 </div>
-<div class="section" id="install-using-aws">
-<h2>Install using aws<a class="headerlink" href="#install-using-aws" title="Permalink to this headline">¶</a></h2>
-<p>Using AWS</p>
+<div class="section" id="deploy-aws-lambda-function">
+<h2>Deploy aws lambda function<a class="headerlink" href="#deploy-aws-lambda-function" title="Permalink to this headline">¶</a></h2>
+<p>AWS SAM is used to deploy lambda application. These functions have been compiled in the Makefile</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make sam_build
 make sam_package
 make sam_deploy
@@ -243,11 +243,99 @@ make sam_deploy
 </div>
 </div>
 </div>
-<div class="section" id="contents">
-<h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<dl class="get">
+<dt id="get--clean">
+<code class="descname">GET </code><code class="descname">/clean</code><a class="headerlink" href="#get--clean" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Clean brand and model field</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">Query Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>marque</strong> (<em>string</em>) – Vehicle brand (eg: Renault)</p></li>
+<li><p><strong>modele</strong> (<em>string</em>) – Vehicle model (eg: Clio)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – Success</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>marque</strong> (<em>string</em>) – Cleaned brand</p></li>
+<li><p><strong>modele</strong> (<em>string</em>) – Cleaned model</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--norm-table_ref_name">
+<code class="descname">GET </code><code class="descname">/norm/{table_ref_name}</code><a class="headerlink" href="#get--norm-table_ref_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Normalize a single brand and model using a defined referential table</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_ref_name</strong> (<em>string</em>) – Reference table [siv,cardisiac,siv_caradisiac]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Query Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>marque</strong> (<em>string</em>) – Vehicle brand (eg: Renault)</p></li>
+<li><p><strong>modele</strong> (<em>string</em>) – Vehicle model (eg: Clio)</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – Success</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>marque</strong> (<em>string</em>) – Matched brand</p></li>
+<li><p><strong>modele</strong> (<em>string</em>) – Matched model</p></li>
+<li><p><strong>score</strong> (<em>number</em>) – Global matching score. Combination of score_marque and score_modele</p></li>
+<li><p><strong>score_marque</strong> (<em>integer</em>) – Matching score for brand</p></li>
+<li><p><strong>score_modele</strong> (<em>integer</em>) – Matching score for model</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--norm-table_ref_name">
+<code class="descname">POST </code><code class="descname">/norm/{table_ref_name}</code><a class="headerlink" href="#post--norm-table_ref_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Normalize a table of brand and model using a defined referential table</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_ref_name</strong> (<em>string</em>) – Reference table [siv,cardisiac,siv_caradisiac]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – <p>CSV file containing matching brand model and score like:</p>
+<blockquote>
+<div><p>RENAULT,CLIO,1.0
+RENAULT,CLIO,0.945 
+AUDI, TTS,1.0 
+RENAULT,CLIO,0.945 
+RENAULT,CLIO,0.95 
+RENAULT,CLIO,1.0</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="functions-documentation">
+<h1>Functions Documentation<a class="headerlink" href="#functions-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Application modules</p>
 <div class="section" id="module-app">
-<span id="main-app"></span><h2>Main app<a class="headerlink" href="#module-app" title="Permalink to this headline">¶</a></h2>
+<span id="flask-application"></span><h2>Flask application<a class="headerlink" href="#module-app" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="app.Clean">
 <em class="property">class </em><code class="descclassname">app.</code><code class="descname">Clean</code><span class="sig-paren">(</span><em>api=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Clean" title="Permalink to this definition">¶</a></dt>
@@ -330,14 +418,6 @@ make sam_deploy
 </dd></dl>
 
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
 </div>
 
 

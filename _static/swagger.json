@@ -1,0 +1,182 @@
+{
+  "swagger": "2.0",
+  "basePath": "http://localhost/sivnorm",
+  "paths": {
+    "/clean": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CleanOutput"
+            }
+          }
+        },
+        "summary": "Clean brand and model field",
+        "operationId": "get_clean",
+        "parameters": [
+          {
+            "name": "marque",
+            "in": "query",
+            "type": "string",
+            "description": "Vehicle brand (eg: Renault)"
+          },
+          {
+            "name": "modele",
+            "in": "query",
+            "type": "string",
+            "description": "Vehicle model (eg: Clio)"
+          }
+        ],
+        "tags": [
+          "default"
+        ]
+      }
+    },
+    "/norm/{table_ref_name}": {
+      "parameters": [
+        {
+          "description": "Reference table [siv,cardisiac,siv_caradisiac]",
+          "name": "table_ref_name",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/NormalizedOutput"
+            }
+          }
+        },
+        "summary": "Normalize a single brand and model using a defined referential table",
+        "operationId": "get_normalization",
+        "parameters": [
+          {
+            "name": "marque",
+            "in": "query",
+            "type": "string",
+            "description": "Vehicle brand (eg: Renault)"
+          },
+          {
+            "name": "modele",
+            "in": "query",
+            "type": "string",
+            "description": "Vehicle model (eg: Clio)"
+          }
+        ],
+        "tags": [
+          "default"
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "CSV file containing matching brand model and score like: \n\n RENAULT,CLIO,1.0\n RENAULT,CLIO,0.945 \n AUDI, TTS,1.0 \n RENAULT,CLIO,0.945 \n RENAULT,CLIO,0.95 \n RENAULT,CLIO,1.0"
+          }
+        },
+        "summary": "Normalize a table of brand and model using a defined referential table",
+        "operationId": "post_normalization",
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "type": "file",
+            "description": "CSV file with multiple brand model lines with no header. Like: \n\n renault,clio \n renault,clio2 \n audi,TTs \n renault,renault clio7 \n renault,clio7 RT/RN"
+          }
+        ],
+        "produces": [
+          "text/csv"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "default"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "SivNorm",
+    "version": "1.0",
+    "description": "Match flou de la marque et modèle des véhicules dans la                 carte grise à partir d'un référentiel"
+  },
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "tags": [
+    {
+      "name": "default",
+      "description": "Default namespace"
+    }
+  ],
+  "definitions": {
+    "NormalizedOutput": {
+      "properties": {
+        "modele": {
+          "type": "string",
+          "description": "Matched model",
+          "example": "Clio"
+        },
+        "marque": {
+          "type": "string",
+          "description": "Matched brand",
+          "example": "Renault"
+        },
+        "score_marque": {
+          "type": "integer",
+          "description": "Matching score for brand",
+          "example": 100,
+          "minimum": 0,
+          "maximum": 100
+        },
+        "score_modele": {
+          "type": "integer",
+          "description": "Matching score for model",
+          "example": 100,
+          "minimum": 0,
+          "maximum": 100
+        },
+        "score": {
+          "type": "number",
+          "description": "Global matching score. Combination of score_marque and score_modele",
+          "example": 1,
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "type": "object"
+    },
+    "CleanOutput": {
+      "properties": {
+        "modele": {
+          "type": "string",
+          "description": "Cleaned model",
+          "example": "CLIO"
+        },
+        "marque": {
+          "type": "string",
+          "description": "Cleaned brand",
+          "example": "RENAULT"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "responses": {
+    "ParseError": {
+      "description": "When a mask can't be parsed"
+    },
+    "MaskError": {
+      "description": "When any error occurs on mask"
+    }
+  },
+  "host": "localhost"
+}
