@@ -14,13 +14,13 @@ Globals:
       Variables:
         BASE_MODEL_PATH: /tmp
 Resources:
-  SivNormGateway: 
+  SivNormGateway:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
       DefinitionUri: ./swagger.yaml
       BinaryMediaTypes:
-         - multipart~1form-data
+        - multipart~1form-data
   NormFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -47,6 +47,12 @@ Resources:
             RestApiId: !Ref "SivNormGateway"
             Path: /norm/{table_ref_name}
             Method: POST
+        OptionsEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref "SivNormGateway"
+            Path: /norm/{table_ref_name}
+            Method: OPTIONS
   CleanFunction:
     Type: AWS::Serverless::Function
     Properties:

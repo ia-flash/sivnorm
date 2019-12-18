@@ -38,7 +38,16 @@ def lambda_handler_norm(event, context):
             'body': json.dumps(dict())
         }
 
-    if event["httpMethod"] == "GET":
+    if event["httpMethod"] == "OPTIONS":
+        return {
+                'headers': {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Methods": "OPTIONS"
+                    },
+                'statusCode': 200,
+                }
+    elif event["httpMethod"] == "GET":
         marque = queryStringParameters.get('marque', '')
         modele = queryStringParameters.get('modele', '')
         res = json.dumps(process_row(table_ref_name, marque, modele))
@@ -46,7 +55,7 @@ def lambda_handler_norm(event, context):
                 'headers': {
                     "Access-Control-Allow-Origin": "*",
                     "Access-Control-Allow-Headers": "Content-Type",
-                    "Access-Control-Allow-Methods": "OPTIONS,POST"
+                    "Access-Control-Allow-Methods": "GET"
                     },
                 'statusCode': 200,
                 'body': res
