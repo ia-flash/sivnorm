@@ -270,6 +270,33 @@ make sam_deploy
 </dl>
 </dd></dl>
 
+<dl class="post">
+<dt id="post--norm-table_ref_name">
+<code class="descname">POST </code><code class="descname">/norm/{table_ref_name}</code><a class="headerlink" href="#post--norm-table_ref_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Normalize a table of brand and model using a defined referential table</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_ref_name</strong> (<em>string</em>) – Reference table [siv,cardisiac,siv_caradisiac]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – <p>CSV file containing matching brand model and score like:</p>
+<blockquote>
+<div><p>RENAULT,CLIO,1.0
+RENAULT,CLIO,0.945 
+AUDI, TTS,1.0 
+RENAULT,CLIO,0.945 
+RENAULT,CLIO,0.95 
+RENAULT,CLIO,1.0</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="get">
 <dt id="get--norm-table_ref_name">
 <code class="descname">GET </code><code class="descname">/norm/{table_ref_name}</code><a class="headerlink" href="#get--norm-table_ref_name" title="Permalink to this definition">¶</a></dt>
@@ -298,33 +325,6 @@ make sam_deploy
 <li><p><strong>score</strong> (<em>number</em>) – Global matching score. Combination of score_marque and score_modele</p></li>
 <li><p><strong>score_marque</strong> (<em>integer</em>) – Matching score for brand</p></li>
 <li><p><strong>score_modele</strong> (<em>integer</em>) – Matching score for model</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="post">
-<dt id="post--norm-table_ref_name">
-<code class="descname">POST </code><code class="descname">/norm/{table_ref_name}</code><a class="headerlink" href="#post--norm-table_ref_name" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Normalize a table of brand and model using a defined referential table</strong></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>table_ref_name</strong> (<em>string</em>) – Reference table [siv,cardisiac,siv_caradisiac]</p></li>
-</ul>
-</dd>
-<dt class="field-even">Status Codes</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – <p>CSV file containing matching brand model and score like:</p>
-<blockquote>
-<div><p>RENAULT,CLIO,1.0
-RENAULT,CLIO,0.945 
-AUDI, TTS,1.0 
-RENAULT,CLIO,0.945 
-RENAULT,CLIO,0.95 
-RENAULT,CLIO,1.0</p>
-</div></blockquote>
-</p></li>
 </ul>
 </dd>
 </dl>
