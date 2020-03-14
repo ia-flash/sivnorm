@@ -1,6 +1,8 @@
 import time
 import pandas as pd
 from io import StringIO
+import werkzeug
+werkzeug.cached_property = werkzeug.utils.cached_property
 from flask import Flask, request, send_from_directory, make_response, Blueprint, url_for
 from flask_restplus import Resource, Api, reqparse, fields
 from flask_cors import CORS
