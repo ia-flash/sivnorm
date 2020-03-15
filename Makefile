@@ -1,42 +1,36 @@
-# The Makefile defines all builds/tests steps
+export no_proxy
+export http_proxy
+export EXEC_ENV=dev
+export PROJECT_NAME=sivnorm
+export APP_PATH := $(shell pwd)
+export APP_PORT=5000
+export APP_VERSION	:= $(shell git rev-parse HEAD | cut -c1-8)
+# For local dev: BASE_MODEL_PATH=/app/dss
+# For AWS lambda: BASE_MODEL_PATH=/tmp
+export BASE_MODEL_PATH=/app/dss
+# this is usefull with most python apps in dev mode because if stdout is
+# buffered logs do not shows in realtime
+export PYTHONUNBUFFERED=1
 
-# include .env file
-include docker/conf.list
+dummy               := $(shell touch artifacts)
+include ./artifacts
 
 # compose command to merge production file and and dev/tools overrides
 COMPOSE?=docker-compose -p $(PROJECT_NAME) -f docker-compose.yml
-
-export COMPOSE
-export APP_PORT
-export no_proxy
-export http_proxy
-export BASE_MODEL_PATH
-# this is usefull with most python apps in dev mode because if stdout is
-# buffered logs do not shows in realtime
-PYTHONUNBUFFERED=1
-export PYTHONUNBUFFERED
-
-docker/env.list:
-	# Copy default config
-	cp docker/env.list.sample docker/env.list
-
-docker/conf.list:
-	# Copy default config
-	cp docker/conf.list.sample docker/conf.list
 
 network:
 	docker network create isolated_nw 2> /dev/null; true
 
 dss:
-	aws s3 cp s3://dss ${BASE_MODEL_PATH} --recursive 
+	aws s3 cp s3://dss ./dss --recursive 
 
-dev: network docker/env.list docker/conf.list
+dev: network dss
 	$(COMPOSE) up
 
-build:
+build: dss
 	$(COMPOSE) build
 
-up: network docker/env.list docker/conf.list
+up: network dss
 	$(COMPOSE) up -d
 
 stop:
