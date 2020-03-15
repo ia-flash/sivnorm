@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r docker/flask-api/requirements.txt
+          pip install -r requirements.txt
       - uses: ia-flash/s3-download-action@master
         with:
           args:
