@@ -1,12 +1,37 @@
+import os
 import re
 import json
+import boto3
 import pandas as pd
+import os.path as osp
 from sivnorm.process import cleaning, fuzzymatch, df_process
 import base64
 from requests_toolbelt.multipart import decoder
 
 pattern = re.compile('(?<=form-data; name=").*?(?=")')
 
+dst_path = os.environ['BASE_MODEL_PATH'] # locally
+bucket_name = 'iaflash' # in s3
+src_path = 'dss' # in s3 bucket
+
+files = ['esiv_marque_modele_genre.csv', 'caradisiac_marque_modele.csv',
+         'esiv_caradisiac_marque_modele_genre.csv']
+
+if not osp.exists(dst_path):
+    print("Creating {}".format(dst_path))
+    os.makedirs(dst_path)
+
+for file in files:
+    dst_path_abs = osp.join(dst_path, file)
+    print("Checking for {}".format(dst_path_abs))
+    if not osp.isfile(dst_path_abs):
+        print("Downloading: {}".format(osp.join(src_path, file)))
+        s3 = boto3.resource('s3')
+        myobject = s3.Object(bucket_name, osp.join(src_path, file))
+        myobject.download_file(dst_path_abs)
+        print("Downloading ok\n")
+    else:
+        print("{} already exist".format(file))
 
 def process_row(table_ref_name, marque, modele):
     if marque and modele:

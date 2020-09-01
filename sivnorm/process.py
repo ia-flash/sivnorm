@@ -4,32 +4,10 @@ import os.path as osp
 from fuzzywuzzy import process, fuzz
 from unidecode import unidecode
 import pandas as pd
-import boto3
 from multiprocessing import Pool
 from functools import partial
 
 dst_path = os.environ['BASE_MODEL_PATH'] # locally
-bucket_name = 'iaflash' # in s3
-src_path = 'dss' # in s3 bucket
-
-files = ['esiv_marque_modele_genre.csv', 'caradisiac_marque_modele.csv',
-         'esiv_caradisiac_marque_modele_genre.csv']
-
-if not osp.exists(dst_path):
-    print("Creating {}".format(dst_path))
-    os.makedirs(dst_path)
-
-for file in files:
-    dst_path_abs = osp.join(dst_path, file)
-    print("Checking for {}".format(dst_path_abs))
-    if not osp.isfile(dst_path_abs):
-        print("Downloading: {}".format(osp.join(src_path, file)))
-        s3 = boto3.resource('s3')
-        myobject = s3.Object(bucket_name, osp.join(src_path, file))
-        myobject.download_file(dst_path_abs)
-        print("Downloading ok\n")
-    else:
-        print("{} already exist".format(file))
 
 ref_marque_modele_path = dict(
         siv=osp.join(dst_path, 'esiv_marque_modele_genre.csv'),
