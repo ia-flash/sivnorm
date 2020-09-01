@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -245,9 +245,9 @@ make sam_deploy
 </div>
 <div class="section" id="api">
 <h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
-<dl class="get">
+<dl class="http get">
 <dt id="get--clean">
-<code class="descname">GET </code><code class="descname">/clean</code><a class="headerlink" href="#get--clean" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">GET </code><code class="sig-name descname">/clean</code><a class="headerlink" href="#get--clean" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Clean brand and model field</strong></p>
 <dl class="field-list simple">
 <dt class="field-odd">Query Parameters</dt>
@@ -270,9 +270,36 @@ make sam_deploy
 </dl>
 </dd></dl>
 
-<dl class="get">
+<dl class="http post">
+<dt id="post--norm-table_ref_name">
+<code class="sig-name descname">POST </code><code class="sig-name descname">/norm/{table_ref_name}</code><a class="headerlink" href="#post--norm-table_ref_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Normalize a table of brand and model using a defined referential table</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_ref_name</strong> (<em>string</em>) – Reference table [siv,cardisiac,siv_caradisiac]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – <p>CSV file containing matching brand model and score like:</p>
+<blockquote>
+<div><p>RENAULT,CLIO,1.0
+RENAULT,CLIO,0.945 
+AUDI, TTS,1.0 
+RENAULT,CLIO,0.945 
+RENAULT,CLIO,0.95 
+RENAULT,CLIO,1.0</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="http get">
 <dt id="get--norm-table_ref_name">
-<code class="descname">GET </code><code class="descname">/norm/{table_ref_name}</code><a class="headerlink" href="#get--norm-table_ref_name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">GET </code><code class="sig-name descname">/norm/{table_ref_name}</code><a class="headerlink" href="#get--norm-table_ref_name" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Normalize a single brand and model using a defined referential table</strong></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -303,57 +330,30 @@ make sam_deploy
 </dl>
 </dd></dl>
 
-<dl class="post">
-<dt id="post--norm-table_ref_name">
-<code class="descname">POST </code><code class="descname">/norm/{table_ref_name}</code><a class="headerlink" href="#post--norm-table_ref_name" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Normalize a table of brand and model using a defined referential table</strong></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>table_ref_name</strong> (<em>string</em>) – Reference table [siv,cardisiac,siv_caradisiac]</p></li>
-</ul>
-</dd>
-<dt class="field-even">Status Codes</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – <p>CSV file containing matching brand model and score like:</p>
-<blockquote>
-<div><p>RENAULT,CLIO,1.0
-RENAULT,CLIO,0.945 
-AUDI, TTS,1.0 
-RENAULT,CLIO,0.945 
-RENAULT,CLIO,0.95 
-RENAULT,CLIO,1.0</p>
-</div></blockquote>
-</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 <div class="section" id="functions-documentation">
 <h1>Functions Documentation<a class="headerlink" href="#functions-documentation" title="Permalink to this headline">¶</a></h1>
 <p>Application modules</p>
 <div class="section" id="module-app">
 <span id="flask-application"></span><h2>Flask application<a class="headerlink" href="#module-app" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="app.Clean">
-<em class="property">class </em><code class="descclassname">app.</code><code class="descname">Clean</code><span class="sig-paren">(</span><em>api=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Clean" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">app.</code><code class="sig-name descname">Clean</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">api</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.Clean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Docstring for MyClass.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="app.Clean.get">
-<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.Clean.get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.Clean.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clean brand and model field</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="app.Custom_API">
-<em class="property">class </em><code class="descclassname">app.</code><code class="descname">Custom_API</code><span class="sig-paren">(</span><em>app=None</em>, <em>version='1.0'</em>, <em>title=None</em>, <em>description=None</em>, <em>terms_url=None</em>, <em>license=None</em>, <em>license_url=None</em>, <em>contact=None</em>, <em>contact_url=None</em>, <em>contact_email=None</em>, <em>authorizations=None</em>, <em>security=None</em>, <em>doc='/'</em>, <em>default_id=&lt;function default_id&gt;</em>, <em>default='default'</em>, <em>default_label='Default namespace'</em>, <em>validate=None</em>, <em>tags=None</em>, <em>prefix=''</em>, <em>ordered=False</em>, <em>default_mediatype='application/json'</em>, <em>decorators=None</em>, <em>catch_all_404s=False</em>, <em>serve_challenge_on_401=False</em>, <em>format_checker=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Custom_API" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="attribute">
+<em class="property">class </em><code class="sig-prename descclassname">app.</code><code class="sig-name descname">Custom_API</code><span class="sig-paren">(</span><em class="sig-param">app=None</em>, <em class="sig-param">version='1.0'</em>, <em class="sig-param">title=None</em>, <em class="sig-param">description=None</em>, <em class="sig-param">terms_url=None</em>, <em class="sig-param">license=None</em>, <em class="sig-param">license_url=None</em>, <em class="sig-param">contact=None</em>, <em class="sig-param">contact_url=None</em>, <em class="sig-param">contact_email=None</em>, <em class="sig-param">authorizations=None</em>, <em class="sig-param">security=None</em>, <em class="sig-param">doc='/'</em>, <em class="sig-param">default_id=&lt;function default_id&gt;</em>, <em class="sig-param">default='default'</em>, <em class="sig-param">default_label='Default namespace'</em>, <em class="sig-param">validate=None</em>, <em class="sig-param">tags=None</em>, <em class="sig-param">prefix=''</em>, <em class="sig-param">ordered=False</em>, <em class="sig-param">default_mediatype='application/json'</em>, <em class="sig-param">decorators=None</em>, <em class="sig-param">catch_all_404s=False</em>, <em class="sig-param">serve_challenge_on_401=False</em>, <em class="sig-param">format_checker=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Custom_API" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
 <dt id="app.Custom_API.specs_url">
-<code class="descname">specs_url</code><a class="headerlink" href="#app.Custom_API.specs_url" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">specs_url</code><a class="headerlink" href="#app.Custom_API.specs_url" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Swagger specifications absolute url (ie. <cite>swagger.json</cite>)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
@@ -364,31 +364,31 @@ RENAULT,CLIO,1.0</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="app.Information">
-<em class="property">class </em><code class="descclassname">app.</code><code class="descname">Information</code><span class="sig-paren">(</span><em>api=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Information" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">app.</code><code class="sig-name descname">Information</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">api</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.Information" title="Permalink to this definition">¶</a></dt>
 <dd><p>Docstring for MyClass.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="app.Information.get">
-<code class="descname">get</code><span class="sig-paren">(</span><em>table_ref_name</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Information.get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">table_ref_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.Information.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get brand and model image</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="app.Normalization">
-<em class="property">class </em><code class="descclassname">app.</code><code class="descname">Normalization</code><span class="sig-paren">(</span><em>api=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Normalization" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">app.</code><code class="sig-name descname">Normalization</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">api</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.Normalization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Docstring for MyClass.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="app.Normalization.get">
-<code class="descname">get</code><span class="sig-paren">(</span><em>table_ref_name</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Normalization.get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">table_ref_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.Normalization.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize a single brand and model using a defined referential table</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="app.Normalization.post">
-<code class="descname">post</code><span class="sig-paren">(</span><em>table_ref_name</em><span class="sig-paren">)</span><a class="headerlink" href="#app.Normalization.post" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">post</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">table_ref_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#app.Normalization.post" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize a table of brand and model using a defined referential table</p>
 </dd></dl>
 
@@ -397,9 +397,9 @@ RENAULT,CLIO,1.0</p>
 </div>
 <div class="section" id="module-process">
 <span id="process-function"></span><h2>Process function<a class="headerlink" href="#module-process" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="process.cleaning">
-<code class="descclassname">process.</code><code class="descname">cleaning</code><span class="sig-paren">(</span><em>row</em>, <em>column</em><span class="sig-paren">)</span><a class="headerlink" href="#process.cleaning" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">process.</code><code class="sig-name descname">cleaning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">row</span></em>, <em class="sig-param"><span class="n">column</span></em><span class="sig-paren">)</span><a class="headerlink" href="#process.cleaning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cleaning function</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
