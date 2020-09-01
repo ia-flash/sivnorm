@@ -3,6 +3,8 @@
 #######################
 FROM python:3.7 as dev
 
+ARG APP_PORT
+
 WORKDIR /app
 
 COPY requirements.txt /app
@@ -15,12 +17,13 @@ COPY dss /app/dss
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 80
+# Expose the listening port of your app
+EXPOSE ${APP_PORT}
 
 LABEL traefik.enable="true"
 LABEL traefik.http.routers.sivnorm.entrypoints="http"
 LABEL traefik.http.routers.sivnorm.rule="PathPrefix(`/sivnorm`) || PathPrefix(`/swaggerui`)"
-LABEL traefik.http.services.sivnorm.loadbalancer.server.port="5000"
+LABEL traefik.http.services.sivnorm.loadbalancer.server.port=${APP_PORT}
 
 ################################
 # Step 2: "production" target #

@@ -1,3 +1,4 @@
+import os
 import time
 import pandas as pd
 from io import StringIO
@@ -15,6 +16,11 @@ app.config.SWAGGER_UI_DOC_EXPANSION = 'list'
 app.config.SWAGGER_UI_OPERATION_ID = True
 app.config.SWAGGER_UI_REQUEST_DURATION = True
 CORS(app)
+
+if os.getenv('APP_PORT'):
+    PORT = int(str(os.getenv('APP_PORT')))
+else:
+    PORT=5000
 
 ##########################
 #  Documentation Sphinx  #
@@ -177,4 +183,4 @@ class Clean(Resource):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=PORT)

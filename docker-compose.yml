@@ -8,15 +8,17 @@ services:
       target: ${EXEC_ENV}
       dockerfile: Dockerfile
       args:
-        - http_proxy=${http_proxy}
-        - https_proxy=${https_proxy}
+        http_proxy: ${http_proxy}
+        https_proxy: ${https_proxy}
+        APP_PORT: ${APP_PORT}
     environment:
      - http_proxy=${http_proxy}
      - https_proxy=${http_proxy}
      - no_proxy=${no_proxy}
      - BASE_MODEL_PATH=${BASE_MODEL_PATH}
+     - APP_PORT=${APP_PORT}
     ports:
-     - ${APP_PORT}:5000
+     - ${APP_PORT}:${APP_PORT}
     networks:
      - isolated_nw
     volumes:
