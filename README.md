@@ -7,9 +7,10 @@ Clean car make and model using a reference table.
 # Installation
 
 ```
-mv docker/conf.file.sample docker/conf.file
 make up
 ```
+
+You can overload env variables using artifacts file.
 
 # [Documentation](https://ia-flash.github.io/sivnorm/)
 
