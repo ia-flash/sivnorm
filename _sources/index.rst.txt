@@ -21,12 +21,7 @@ Structure
 
 ::
 
-   ├── docker                                 <- Docker configuration files
-   │   ├── conf.list
-   │   ├── conf.list.sample
-   │   ├── env.list
-   │   ├── env.list.sample
-   │   └── flask-api
+
    ├── docker-compose.yml
    ├── docs                                   <- Sphinx documentation folder
    │   ├── build
@@ -37,6 +32,7 @@ Structure
    │   ├── caradisiac_marque_modele.csv
    │   ├── esiv_caradisiac_marque_modele_genre.csv
    │   └── esiv_marque_modele_genre.csv
+   ├── artifacts                              <- Env variables definition file
    ├── Makefile                               <- Orchestring commands
    ├── README.md                              <- Top-level README for developers using this project
    ├── setup.py
