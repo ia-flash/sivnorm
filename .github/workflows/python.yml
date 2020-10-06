@@ -1,10 +1,10 @@
-name: Python application
+name: Sivnorm test
 
 on: [push]
 
 jobs:
   build:
-    name: Python test
+    name: Test, Build & Publish
 
     runs-on: ubuntu-latest
 
@@ -19,7 +19,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           cp -r sivnorm aws_lambda
-      - uses: ia-flash/s3-download-action@master
+      - name: 🍱 Get assets for testing
+        uses: ia-flash/s3-download-action@master
         with:
           args:
         env:
@@ -28,16 +29,32 @@ jobs:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      - name: Lint with flake8
+      - name: 🚨 Lint with flake8
         run: |
           pip install flake8
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Test with pytest
+      - name: ✅ Test with pytest
         run: |
           pip install pytest
           pytest tests/
         env:
           BASE_MODEL_PATH: '/home/runner/work/sivnorm/sivnorm/dss'
+      - name: 📚 Build documentation
+        run: |
+          python sivnorm/export_swagger.py
+          make -C ./docs html
+          touch ./docs/build/html/.nojekyll
+        env:
+          BASE_MODEL_PATH: '/home/runner/work/sivnorm/sivnorm/dss'
+      - name: 🐋 Build the Docker image
+        run: make build
+      - name: 🚀 Deploy doc sur github pages
+        if: github.ref == 'refs/heads/master'
+        uses: docker://peaceiris/gh-pages:v2.3.2
+        env:
+          ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: ./docs/build/html
