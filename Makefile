@@ -1,13 +1,13 @@
 export no_proxy
 export http_proxy
-export EXEC_ENV=dev
-export PROJECT_NAME=sivnorm
+export PROJECT_NAME=iaflash
+export APP = sivnorm
 export APP_PATH := $(shell pwd)
 export APP_PORT=5000
 export APP_VERSION	:= $(shell git rev-parse HEAD | cut -c1-8)
 # For local dev: BASE_MODEL_PATH=/app/dss
 # For AWS lambda: BASE_MODEL_PATH=/tmp
-export BASE_MODEL_PATH=/app/dss
+export BASE_MODEL_PATH=/${APP}/dss
 # this is usefull with most python apps in dev mode because if stdout is
 # buffered logs do not shows in realtime
 export PYTHONUNBUFFERED=1
@@ -25,13 +25,13 @@ dss:
 	aws s3 cp s3://dss ./dss --recursive 
 
 dev: network dss
-	$(COMPOSE) up
+	export EXEC_ENV=dev; $(COMPOSE) -f docker-compose-dev.yml up --build 
 
 build: dss
-	$(COMPOSE) build
+	export EXEC_ENV=prod; $(COMPOSE) build
 
 up: network dss
-	$(COMPOSE) up -d
+	export EXEC_ENV=prod; $(COMPOSE) up -d
 
 stop:
 	$(COMPOSE) stop
@@ -47,7 +47,7 @@ nohup:
 
 docs/html:
 	$(COMPOSE) exec sivnorme python sivnorm/export_swagger.py
-	$(COMPOSE) exec sivnorme make -C /app/docs html
+	$(COMPOSE) exec sivnorme make -C /${APP}/docs html
 
 docs: docs/html
 	echo "Docs"

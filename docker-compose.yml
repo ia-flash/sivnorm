@@ -1,8 +1,8 @@
 version: '2.3'
 services:
    sivnorme:
-    image: ${PROJECT_NAME}-sivnorm-${EXEC_ENV}:${APP_VERSION}
-    container_name: ${PROJECT_NAME}-sivnorm-${EXEC_ENV}
+    image: ${PROJECT_NAME}-${APP}:${APP_VERSION}
+    container_name: ${PROJECT_NAME}-${APP}
     build:
       context: .
       target: ${EXEC_ENV}
@@ -11,6 +11,7 @@ services:
         http_proxy: ${http_proxy}
         https_proxy: ${https_proxy}
         APP_PORT: ${APP_PORT}
+        APP_PATH: /${APP}
     environment:
      - http_proxy=${http_proxy}
      - https_proxy=${http_proxy}
@@ -18,17 +19,9 @@ services:
      - BASE_MODEL_PATH=${BASE_MODEL_PATH}
      - APP_PORT=${APP_PORT}
     ports:
-     - ${APP_PORT}:${APP_PORT}
+    - ${APP_PORT}:${APP_PORT}
     networks:
      - isolated_nw
-    volumes:
-      - ./:/app
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.sivnorm.entrypoints=http
-      - traefik.http.routers.sivnorm.rule=PathPrefix(`/sivnorm`) || PathPrefix(`/swaggerui`)
-      - traefik.http.services.sivnorm.loadbalancer.server.port=5000
-    command: "python sivnorm/app.py"
 
 networks:
   isolated_nw:
