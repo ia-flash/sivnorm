@@ -1,0 +1,18 @@
+version: '2.3'
+services:
+   sivnorme:
+    image: ${PROJECT_NAME}-${APP}-${EXEC_ENV}:${APP_VERSION}
+    container_name: ${PROJECT_NAME}-${APP}-${EXEC_ENV}
+    ports:
+     - ${APP_PORT}:${APP_PORT}
+    volumes:
+      - ./aws_lambda:/${APP}/aws_lambda/
+      - ./docs:/${APP}/docs/
+      - ./dss:/${APP}/dss/
+      - ./sivnorm:/${APP}/sivnorm/
+      - ./tests:/${APP}/tests/
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.sivnorm.entrypoints=http
+      - traefik.http.routers.sivnorm.rule=PathPrefix(`/sivnorm`) || PathPrefix(`/swaggerui`)
+      - traefik.http.services.sivnorm.loadbalancer.server.port=5000

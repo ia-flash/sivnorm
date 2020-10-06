@@ -13,3 +13,4 @@ api-event.json
 aws_lambda/sivnorm
 swagger.json
 artifacts
+config.ini

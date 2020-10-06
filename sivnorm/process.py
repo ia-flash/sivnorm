@@ -7,7 +7,13 @@ import pandas as pd
 from multiprocessing import Pool
 from functools import partial
 
-dst_path = os.environ['BASE_MODEL_PATH'] # locally
+if os.path.exists('./sivnorm/config.ini'):
+    import configparser
+    config = configparser.ConfigParser()
+    config.read('./sivnorm/config.ini')
+    dst_path = config.get('config','BASE_MODEL_PATH')
+else:
+    dst_path = os.environ['BASE_MODEL_PATH']
 
 ref_marque_modele_path = dict(
         siv=osp.join(dst_path, 'esiv_marque_modele_genre.csv'),
