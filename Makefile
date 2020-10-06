@@ -11,6 +11,7 @@ export BASE_MODEL_PATH=/${APP}/dss
 # this is usefull with most python apps in dev mode because if stdout is
 # buffered logs do not shows in realtime
 export PYTHONUNBUFFERED=1
+export PYTHONDONTWRITEBYTECODE=1
 
 dummy               := $(shell touch artifacts)
 include ./artifacts

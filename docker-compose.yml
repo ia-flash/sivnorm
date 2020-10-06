@@ -18,6 +18,8 @@ services:
      - no_proxy=${no_proxy}
      - BASE_MODEL_PATH=${BASE_MODEL_PATH}
      - APP_PORT=${APP_PORT}
+     - PYTHONUNBUFFERED=${PYTHONUNBUFFERED}
+     - PYTHONDONTWRITEBYTECODE=${PYTHONDONTWRITEBYTECODE}
     ports:
     - ${APP_PORT}:${APP_PORT}
     networks:
