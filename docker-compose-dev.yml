@@ -11,6 +11,7 @@ services:
       - ./dss:/${APP}/dss/
       - ./sivnorm:/${APP}/sivnorm/
       - ./tests:/${APP}/tests/
+      - ./config.ini:/${APP}/config.ini
     labels:
       - traefik.enable=true
       - traefik.http.routers.sivnorm.entrypoints=http

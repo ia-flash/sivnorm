@@ -7,10 +7,10 @@ import pandas as pd
 from multiprocessing import Pool
 from functools import partial
 
-if os.path.exists('./sivnorm/config.ini'):
+if os.path.exists('./config.ini'):
     import configparser
     config = configparser.ConfigParser()
-    config.read('./sivnorm/config.ini')
+    config.read('./config.ini')
     dst_path = config.get('config','BASE_MODEL_PATH')
 else:
     dst_path = os.environ['BASE_MODEL_PATH']

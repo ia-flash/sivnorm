@@ -12,6 +12,7 @@ COPY LICENSE.md ./
 COPY README.md ./
 COPY requirements.txt ./
 COPY setup.py ./
+COPY config.ini ./
 
 VOLUME /${APP_PATH}/sivnorm
 VOLUME /${APP_PATH}/aws_lambda
@@ -45,5 +46,6 @@ COPY LICENSE.md ./
 COPY README.md ./
 COPY requirements.txt ./
 COPY setup.py ./
+COPY config.ini ./
 
 CMD ["python","sivnorm/app.py"]

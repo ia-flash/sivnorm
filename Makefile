@@ -14,13 +14,15 @@ export PYTHONUNBUFFERED=1
 export PYTHONDONTWRITEBYTECODE=1
 
 dummy               := $(shell touch artifacts)
+dummy               := $(shell touch config.ini)
 include ./artifacts
 
 # compose command to merge production file and and dev/tools overrides
 COMPOSE?=docker-compose -p $(PROJECT_NAME) -f docker-compose.yml
 
 network:
-	docker network create isolated_nw 2> /dev/null; true
+	@echo "Create network"
+	@docker network create isolated_nw 2> /dev/null; true
 
 dss:
 	aws s3 cp s3://dss ./dss --recursive 
