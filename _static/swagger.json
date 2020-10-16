@@ -43,6 +43,32 @@
           "type": "string"
         }
       ],
+      "post": {
+        "responses": {
+          "200": {
+            "description": "CSV file containing matching brand model and score like: \n\n RENAULT,CLIO,1.0\n RENAULT,CLIO,0.945 \n AUDI, TTS,1.0 \n RENAULT,CLIO,0.945 \n RENAULT,CLIO,0.95 \n RENAULT,CLIO,1.0"
+          }
+        },
+        "summary": "Normalize a table of brand and model using a defined referential table",
+        "operationId": "post_normalization",
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "type": "file",
+            "description": "CSV file with multiple brand model lines with no header. Like: \n\n renault,clio \n renault,clio2 \n audi,TTs \n renault,renault clio7 \n renault,clio7 RT/RN"
+          }
+        ],
+        "produces": [
+          "text/csv"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "default"
+        ]
+      },
       "get": {
         "responses": {
           "200": {
@@ -67,32 +93,6 @@
             "type": "string",
             "description": "Vehicle model (eg: Clio)"
           }
-        ],
-        "tags": [
-          "default"
-        ]
-      },
-      "post": {
-        "responses": {
-          "200": {
-            "description": "CSV file containing matching brand model and score like: \n\n RENAULT,CLIO,1.0\n RENAULT,CLIO,0.945 \n AUDI, TTS,1.0 \n RENAULT,CLIO,0.945 \n RENAULT,CLIO,0.95 \n RENAULT,CLIO,1.0"
-          }
-        },
-        "summary": "Normalize a table of brand and model using a defined referential table",
-        "operationId": "post_normalization",
-        "parameters": [
-          {
-            "name": "file",
-            "in": "formData",
-            "type": "file",
-            "description": "CSV file with multiple brand model lines with no header. Like: \n\n renault,clio \n renault,clio2 \n audi,TTs \n renault,renault clio7 \n renault,clio7 RT/RN"
-          }
-        ],
-        "produces": [
-          "text/csv"
-        ],
-        "consumes": [
-          "multipart/form-data"
         ],
         "tags": [
           "default"
