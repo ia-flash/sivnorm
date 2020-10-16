@@ -14,11 +14,13 @@ export PYTHONUNBUFFERED=1
 export PYTHONDONTWRITEBYTECODE=1
 
 dummy               := $(shell touch artifacts)
-dummy               := $(shell touch config.ini)
 include ./artifacts
 
 # compose command to merge production file and and dev/tools overrides
 COMPOSE?=docker-compose -p $(PROJECT_NAME) -f docker-compose.yml
+
+config.ini:
+	cp config.ini.sample config.ini
 
 network:
 	@echo "Create network"
@@ -27,13 +29,13 @@ network:
 dss:
 	aws s3 cp s3://dss ./dss --recursive 
 
-dev: network dss
+dev: config.ini network dss
 	export EXEC_ENV=dev; $(COMPOSE) -f docker-compose-dev.yml up --build 
 
-build: dss
+build: config.ini dss
 	export EXEC_ENV=prod; $(COMPOSE) build
 
-up: network dss
+up: config.ini network dss
 	export EXEC_ENV=prod; $(COMPOSE) up -d
 
 stop:

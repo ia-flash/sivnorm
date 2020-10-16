@@ -17,7 +17,12 @@ app.config.SWAGGER_UI_OPERATION_ID = True
 app.config.SWAGGER_UI_REQUEST_DURATION = True
 CORS(app)
 
-if os.getenv('APP_PORT'):
+if os.path.exists('./config.ini'):
+    import configparser
+    config = configparser.ConfigParser()
+    config.read('./config.ini')
+    PORT = config.get('config','APP_PORT')
+elif os.getenv('APP_PORT'):
     PORT = int(str(os.getenv('APP_PORT')))
 else:
     PORT=5000
