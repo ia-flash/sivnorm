@@ -84,6 +84,7 @@ replace_regex = {
         'CLIORL\/RN\/|CLIORL\/RN|CLIOS' : 'CLIO',
         ' III$': ' 3',
         ' IV$': ' 4',
+        '\+2$': ' 2',
         'NON DEFINI|NULL': '',
         'BLUETEC|TDI|CDI': '',
         'BLUETEC|TDI|CDI': '',
