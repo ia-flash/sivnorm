@@ -36,6 +36,7 @@ def test_check():
         df_pred = df_pred.fillna("")
 
         report = '!!  %s --> %s rather than %s for row %s  !!'
+        count_incorrect = 0
         for (row, inp), (_, ref), (_, pred) in zip(df_in.iterrows(), df_ref.iterrows(), df_pred.iterrows()):
             is_incorrect = False
             if ref.modele != pred.modele:
@@ -52,6 +53,12 @@ def test_check():
                     candidates = process.extract(inp.modele, choices, limit=5, scorer=fuzz.WRatio)
                     print(candidates)
                 print(50*"*")
+
+            if is_incorrect and pred.score > 0.95:
+                count_incorrect += 1
+
+        assert count_incorrect <= 1
+        # Make single error audo -> Courtaud ...
 
 
 if __name__ == '__main__':
