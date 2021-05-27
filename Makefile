@@ -27,7 +27,7 @@ network:
 	@docker network create isolated_nw 2> /dev/null; true
 
 dss:
-	aws s3 cp s3://dss ./dss --recursive 
+	aws s3 cp s3://iaflash/dss ./dss --recursive
 
 dev: config.ini network dss
 	export EXEC_ENV=dev; $(COMPOSE) -f docker-compose-dev.yml up --build 
