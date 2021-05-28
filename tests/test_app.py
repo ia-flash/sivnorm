@@ -28,7 +28,6 @@ def test_check():
             data=files
         )
         print(resp.status)
-        print(resp.get_json())
         print(resp.data)
         assert '200 OK' == resp.status
         df_pred = pd.read_csv(BytesIO(resp.data), names=['marque', 'modele', 'score'], encoding='utf-8')
