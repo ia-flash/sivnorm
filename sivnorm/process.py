@@ -36,8 +36,8 @@ def hash_table1(x):
 def hash_table2(x):
     assert 'marque' in ref_marque_modele[x].columns
     assert 'modele' in ref_marque_modele[x].columns
-    assert 'href' in ref_marque_modele[x].columns  # link ref
-    assert 'src' in ref_marque_modele[x].columns  # image ref source
+    #assert 'href' in ref_marque_modele[x].columns  # link ref
+    #assert 'src' in ref_marque_modele[x].columns  # image ref source
     gp = ref_marque_modele[x].groupby(['marque', 'modele'])
     if not (gp.size() == 1).all():
         print("Be careful, your mapping %s is not unique"%x)
@@ -55,13 +55,13 @@ src_dict = {x: hash_table2(x) for x in ref_marque_modele.keys()}
 
 
 def reg_class(x):
+    # Replace CLASSE A XY by CLASSE A
     return '^(CLASSE ?)?{x} *[0-9]+(.*)'.format(x=x)
 
 
 def reg_no_class(x):
-    # '^(CLASSE ?){x}(?:\w)(.*)'
+    # Replace CLASSE XY by XY
     return '^(CLASSE ?){x}'.format(x=x)
-
 
 replace_regex = {
     'marque': {
@@ -82,18 +82,23 @@ replace_regex = {
         #'CLIOCHIPIE|CLIOBEBOP\/|CLIORN\/RT|CLIOBACCAR': 'CLIO I',
         #'CLIOSTE': 'CLIO I',
         'CLIORL\/RN\/|CLIORL\/RN|CLIOS' : 'CLIO',
-        ' III$': ' 3',
+        ' V$': ' 5', # Replace XX V by XX 5
         ' IV$': ' 4',
-        '\+2$': ' 2',
+        ' III$': ' 3',
+        ' II$': ' 2',
+        ' I$': ' 1',
         'NON DEFINI|NULL': '',
-        'BLUETEC|TDI|CDI': '',
-        'BLUETEC|TDI|CDI': '',
+        '\s*(BLUETEC|TDI|CDI|HDI|GTI|STE)$': '',
         'REIHE': 'SERIE'
     },
-    'MERCEDES': {**{reg_class(x): 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X']},
-                 **{reg_no_class(x): '%s'%x for x in ['CL', 'GL', 'SL']}},
+    # Conditional replacement based on the brand
+    'MERCEDES': {**{reg_class(x): 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X','T']},
+                    # Replace MERCEDES A by MERCEDES CLASSE A
+                 **{reg_no_class(x): '%s'%x for x in ['CL', 'GL', 'SL','EQ']}},
+                    # Replace MERCEDES CLASSE GLs by MERCEDES GLs
     'RENAULT': {' ?(SOCIETE)': ''},
-    'BMW': {'(SERIE ?){x}'.format(x=x): '{x}'.format(x=x) for x in ['I', 'M', 'Z', 'X']}
+    # Replace BMW SERIE M1 by BMW M1
+    'BMW': {'(SERIE ?){x}'.format(x=x): '{x}'.format(x=x) for x in ['M', 'Z', 'X']}
     }
 
 
