@@ -63,7 +63,6 @@ def reg_no_class(x):
     # Replace CLASSE XY by XY
     return '^(CLASSE ?){x}'.format(x=x)
 
-
 replace_regex = {
     'marque': {
         'BW|B\.M\.W\.|B\.M\.W|BMW I': 'BMW',
@@ -89,7 +88,7 @@ replace_regex = {
         ' II$': ' 2',
         ' I$': ' 1',
         'NON DEFINI|NULL': '',
-        'BLUETEC|TDI|CDI': '',
+        '\s*(BLUETEC|TDI|CDI|HDI|GTI|STE)$': '',
         'REIHE': 'SERIE'
     },
     # Conditional replacement based on the brand
