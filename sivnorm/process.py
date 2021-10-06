@@ -36,7 +36,7 @@ def hash_table1(x):
 def hash_table2(x):
     assert 'marque' in ref_marque_modele[x].columns
     assert 'modele' in ref_marque_modele[x].columns
-    assert 'href' in ref_marque_modele[x].columns  # link ref
+    #assert 'href' in ref_marque_modele[x].columns  # link ref
     assert 'src' in ref_marque_modele[x].columns  # image ref source
     gp = ref_marque_modele[x].groupby(['marque', 'modele'])
     if not (gp.size() == 1).all():
