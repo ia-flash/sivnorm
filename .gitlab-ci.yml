@@ -31,6 +31,7 @@ before_script:
   - pip3 install -U pip
 
 unit_test:
+  stage: test
   script:
     - pip3 install -r requirements.txt
     - python3 -m unittest tests/test_app.py
@@ -38,6 +39,7 @@ unit_test:
     - python-dinp-tscapx004r
 
 build_wheel:
+  stage: build
   script:
     - pip3 install wheel
     - python3 setup.py bdist_wheel
@@ -50,14 +52,13 @@ build_wheel:
 
 
 upload_wheel:
-  stage: upload
+  stage: deploy
   script:
     - pip3 install twine
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/
   tags:
     - python-dinp-tscapx004r
   when: manual
-
 
 pages:
   script:
