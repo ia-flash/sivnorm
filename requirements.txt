@@ -13,4 +13,4 @@ flask-restplus==0.12.1
 sphinx-rtd-theme==0.4.3
 boto3==1.9.199
 requests-toolbelt==0.9.1
-sphinxcontrib-openapi==0.7.0
+#sphinxcontrib-openapi==0.7.0
