@@ -12,7 +12,6 @@ image: python:latest
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  INSTALL_DIR: "/home/integ/env/staging/sivnorm"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/reference/pip_install/#caching
@@ -68,7 +67,7 @@ staging:
     - source ${INSTALL_DIR}/venv/bin/activate
     - pip3 install -U pip
     - pip3 install --find-links=dist/ sivnorm
-    - curl --insecure -u "gitlab-ci-token:${CI_JOB_TOKEN}" ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sivnorm_referentiel/1.0/sivnorm_referentiel.tar
+    - curl --insecure --header="JOB-TOKEN: $CI_JOB_TOKEN" ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sivnorm_referentiel/1.0/sivnorm_referentiel.tar
     - tar xvf sivnorm_referentiel.tar 
     - cp -R sivnorm_referentiel /home/integ/
   tags:
