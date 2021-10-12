@@ -77,7 +77,7 @@ staging:
     - 'curl --insecure --header "JOB-TOKEN: ${CI_JOB_TOKEN}" ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sivnorm_referentiel/${MODEL_VERSION}/sivnorm_referentiel.tar -o sivnorm_referentiel.tar'
     - mkdir ${INSTALL_DIR}/1.0/models
     - tar xvf sivnorm_referentiel.tar -C ${INSTALL_DIR}/1.0/models
-    - echo -e "[config]\nBASE_MODEL_PATH= ${INSTALL_DIR}/1.0/models/${MODEL_NAME}\nAPP_PORT=${APP_PORT}\n" > ${INSTALL_DIR}/1.0/config.ini
+    - echo -e "[config]\nBASE_MODEL_PATH=${INSTALL_DIR}/1.0/models/${MODEL_NAME}\nAPP_PORT=${APP_PORT}\n" > ${INSTALL_DIR}/1.0/config.ini
     - rm -rf ${INSTALL_DIR}/current
     - ln -s ${INSTALL_DIR}/1.0 ${INSTALL_DIR}/current
   tags:
