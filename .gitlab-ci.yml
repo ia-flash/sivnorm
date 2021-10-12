@@ -59,17 +59,20 @@ upload_wheel:
 staging:
   stage: deploy
   variables:
+    V_INSTALL_DIR: ${INSTALL_DIR}/1.0
     GIT_STRATEGY: none
   script:
-    - rm -rf ${INSTALL_DIR}
-    - mkdir -p ${INSTALL_DIR}
-    - python3 -m venv ${INSTALL_DIR}
-    - source ${INSTALL_DIR}/bin/activate
+    - rm -rf ${V_INSTALL_DIR}
+    - mkdir -p ${V_INSTALL_DIR}
+    - python3 -m venv ${V_INSTALL_DIR}
+    - source ${V_INSTALL_DIR}/bin/activate
     - pip3 install -U pip
     - pip3 install --find-links=dist/ ${CI_PROJECT_NAME}
     - 'curl --insecure --header "JOB-TOKEN: ${CI_JOB_TOKEN}" ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sivnorm_referentiel/${MODEL_VERSION}/sivnorm_referentiel.tar -o sivnorm_referentiel.tar'
     - mkdir ${INSTALL_DIR}/models
-    - tar xvf sivnorm_referentiel.tar -C ${INSTALL_DIR}/models
+    - tar xvf sivnorm_referentiel.tar -C ${V_INSTALL_DIR}/models
+    - rm -rf ${INSTALL_DIR}/current
+    - ln -s V_INSTALL_DIR ${INSTALL_DIR}/current
   tags:
     - python-dinp-tscapx004r
 
