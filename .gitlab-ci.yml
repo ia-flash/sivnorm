@@ -31,17 +31,6 @@ before_script:
   - source venv/bin/activate
   - pip3 install -U pip
 
-unit_test:
-  stage: test
-  script:
-    - sed 's/^python-Levenshtein==0.12.0/python-Levenshtein-wheels==0.13.2/' requirements.txt > requirements.txt # Remplace python-Levenshtein-wheels
-    - sed 's/^sphinxcontrib-openapi=/#sphinxcontrib-openapi=/' requirements.txt > requirements.txt
-    - pip3 install -r requirements.txt
-    - python3 -m unittest tests/test_app.py
-  tags:
-    - python-dinp-tscapx004r
-  rules:
-    - allow_failure: true
 
 build_wheel:
   stage: build
@@ -84,13 +73,3 @@ staging:
     - python-dinp-tscapx004r
 
 
-pages:
-  script:
-    - pip3 install sphinx sphinx-rtd-theme
-    - cd doc ; make html
-    - mv build/html/ ../public/
-  artifacts:
-    paths:
-      - public
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
