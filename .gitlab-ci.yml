@@ -12,6 +12,7 @@ image: python:latest
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  INSTALL_DIR: "/home/integ/env/staging/sivnorm"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/reference/pip_install/#caching
@@ -39,6 +40,8 @@ unit_test:
     - python3 -m unittest tests/test_app.py
   tags:
     - python-dinp-tscapx004r
+  rules:
+    - allow_failure: true
 
 build_wheel:
   stage: build
@@ -63,6 +66,23 @@ upload_wheel:
   tags:
     - python-dinp-tscapx004r
   when: manual
+
+
+staging:
+  stage: deploy
+  script:
+    - rm -rf ${INSTALL_DIR}
+    - mkdir -p ${INSTALL_DIR}
+    - python3 -m venv ${INSTALL_DIR}/venv
+    - source ${INSTALL_DIR}/venv/bin/activate
+    - pip3 install -U pip
+    - pip3 install --find-links=dist/ sivnorm
+    - curl ${CI_API_V4_URL}/groups/${CI_GROUP_ID}/-/packages/generic/sivnorm_referentiel/1.0/sivnorm_referentiel.tar
+    - tar xvf sivnorm_referentiel.tar 
+    - cp -R sivnorm_referentiel /home/integ/
+  tags:
+    - python-dinp-tscapx004r
+
 
 pages:
   script:
