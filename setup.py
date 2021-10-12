@@ -6,5 +6,5 @@ root_path = abspath(dirname(__file__))
 
 with open(join(root_path, 'requirements.txt')) as f:
     REQUIREMENTS = [line.strip() for line in f]
-
+print("REQUIREMENTS %s", REQUIREMENTS)
 setup(name="sivnorm", packages=find_packages(), install_requires=REQUIREMENTS)
