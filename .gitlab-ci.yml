@@ -67,7 +67,7 @@ staging:
     - if [ -z $MODEL_NAME ]; then echo "MODEL_NAME not set"; exit 1; fi
     - if [ -z $MODEL_VERSION ]; then echo "MODEL_VERSION not set"; exit 1; fi
     - if [ -z $INSTALL_DIR ]; then echo "INSTALL_DIR not set"; exit 1; fi
-    - if [ -z $nAPP_PORT ]; then echo "nAPP_PORT not set"; exit 1; fi
+    - if [ -z $APP_PORT ]; then echo "APP_PORT not set"; exit 1; fi
     - ipath=${INSTALL_DIR}/${VERSION_TAG}
     - echo Installation dans $ipath
     - rm -rf ${INSTALL_DIR}/${VERSION_TAG}
