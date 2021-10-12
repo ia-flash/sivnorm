@@ -84,4 +84,5 @@ staging:
   tags:
     - python-dinp-tscapx004r
   
-
+  only:
+    - tags
