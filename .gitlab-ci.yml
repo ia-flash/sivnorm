@@ -59,6 +59,8 @@ upload_wheel:
 
 staging:
   stage: deploy
+  variables:
+    GIT_STRATEGY: none
   script:
     - rm -rf ${INSTALL_DIR}
     - mkdir -p ${INSTALL_DIR}
@@ -66,7 +68,7 @@ staging:
     - source ${INSTALL_DIR}/venv/bin/activate
     - pip3 install -U pip
     - pip3 install --find-links=dist/ sivnorm
-    - curl --insecure -u "gitlab-ci-token:${CI_JOB_TOKEN}" ${CI_API_V4_URL}/groups/${CI_GROUP_ID}/-/packages/generic/sivnorm_referentiel/1.0/sivnorm_referentiel.tar
+    - curl --insecure -u "gitlab-ci-token:${CI_JOB_TOKEN}" ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sivnorm_referentiel/1.0/sivnorm_referentiel.tar
     - tar xvf sivnorm_referentiel.tar 
     - cp -R sivnorm_referentiel /home/integ/
   tags:
