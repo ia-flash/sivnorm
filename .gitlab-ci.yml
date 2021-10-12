@@ -62,22 +62,24 @@ staging:
   variables:
     V_INSTALL_DIR: "${INSTALL_DIR}/1.0"
     GIT_STRATEGY: none
+    VERSION_TAG: 1.1
   script:
     - if [ -z $MODEL_NAME ]; then echo "MODEL_NAME not set"; exit 1; fi
     - if [ -z $MODEL_VERSION ]; then echo "MODEL_VERSION not set"; exit 1; fi
     - if [ -z $INSTALL_DIR ]; then echo "INSTALL_DIR not set"; exit 1; fi
     - if [ -z $nAPP_PORT ]; then echo "nAPP_PORT not set"; exit 1; fi
-    - echo Installation dans ${INSTALL_DIR}/1.0
-    - rm -rf ${INSTALL_DIR}/1.0
-    - python3 -m venv ${INSTALL_DIR}/1.0
-    - source ${INSTALL_DIR}/1.0/bin/activate
+    - ipath=${INSTALL_DIR}/${VERSION_TAG}
+    - echo Installation dans $ipath
+    - rm -rf ${INSTALL_DIR}/${VERSION_TAG}
+    - python3 -m venv ${INSTALL_DIR}/${VERSION_TAG}
+    - source ${INSTALL_DIR}/${VERSION_TAG}/bin/activate
     - pip3 install -U pip
     - echo "manylinux1_compatible = True" > _manylinux.py # Pour forcer l'utilisation de manylinux1 car avec python_levenshtein_wheels, y'a un souci avec version plus récente
     - pip3 install dist/${CI_PROJECT_NAME}*.whl
     - 'curl --insecure --header "JOB-TOKEN: ${CI_JOB_TOKEN}" ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sivnorm_referentiel/${MODEL_VERSION}/sivnorm_referentiel.tar -o sivnorm_referentiel.tar'
     - mkdir ${INSTALL_DIR}/1.0/models
-    - tar xvf sivnorm_referentiel.tar -C ${INSTALL_DIR}/1.0/models
-    - echo -e "[config]\nBASE_MODEL_PATH=${INSTALL_DIR}/1.0/models/${MODEL_NAME}\nAPP_PORT=${APP_PORT}\n" > ${INSTALL_DIR}/1.0/config.ini
+    - tar xvf sivnorm_referentiel.tar -C ${INSTALL_DIR}/${VERSION_TAG}/models
+    - echo -e "[config]\nBASE_MODEL_PATH=${INSTALL_DIR}/${VERSION_TAG}/models/${MODEL_NAME}\nAPP_PORT=${APP_PORT}\n" > ${INSTALL_DIR}/1.0/config.ini
     - rm -rf ${INSTALL_DIR}/current
     - ln -s ${INSTALL_DIR}/1.0 ${INSTALL_DIR}/current
   tags:
