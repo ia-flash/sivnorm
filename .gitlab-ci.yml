@@ -67,7 +67,7 @@ staging:
     - python3 -m venv ${INSTALL_DIR}/1.0
     - source ${INSTALL_DIR}/1.0/bin/activate
     - pip3 install -U pip
-    - pip3 install --find-links=dist/ ${CI_PROJECT_NAME}
+    - pip3 install dist/${CI_PROJECT_NAME}*.whl
     - 'curl --insecure --header "JOB-TOKEN: ${CI_JOB_TOKEN}" ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/sivnorm_referentiel/${MODEL_VERSION}/sivnorm_referentiel.tar -o sivnorm_referentiel.tar'
     - mkdir ${INSTALL_DIR}/1.0/models
     - tar xvf sivnorm_referentiel.tar -C ${INSTALL_DIR}/1.0/models
