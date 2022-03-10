@@ -5,7 +5,9 @@ import base64
 import pandas as pd
 from io import StringIO
 from requests_toolbelt.multipart.encoder import MultipartEncoder
-sys.path.append(os.path.join(os.path.dirname(__file__), '../aws_lambda'))
+sys.path.append( '/sivnorm/aws_lambda')
+sys.path.append( '/sivnorm')
+
 from lambda_function import lambda_handler_norm, lambda_handler_clean
 
 

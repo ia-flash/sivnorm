@@ -9,12 +9,12 @@ from process import marques_dict
 from app import app
 
 
-def test_check():
+def check(file='check.csv'):
     df_in = pd.read_csv(
-            './tests/check.csv', names=['marque', 'modele'],
+            './tests/' + file, names=['marque', 'modele'],
             usecols=[0, 1], encoding='utf-8')
     df_ref = pd.read_csv(
-            './tests/check.csv', names=['marque', 'modele'],
+            './tests/' + file, names=['marque', 'modele'],
             usecols=[2, 3], encoding='utf-8')
     df_in = df_in.fillna("")
     df_ref = df_ref.fillna("")
@@ -34,7 +34,7 @@ def test_check():
         print(df_pred)
         df_pred = df_pred.fillna("")
 
-        report = '!!  %s --> %s rather than %s for row %s  !!'
+        report = '!!  %s --> %s rather than %s for row n° %s  !!'
         count_incorrect = 0
         for (row, inp), (_, ref), (_, pred) in zip(df_in.iterrows(), df_ref.iterrows(), df_pred.iterrows()):
             is_incorrect = False
@@ -59,6 +59,10 @@ def test_check():
         assert count_incorrect <= 1
         # Make single error audo -> Courtaud ...
 
+def test_check2019():
+    check(file='check.csv')
+def test_check2020():
+    check(file='check_2020.csv')
 
 if __name__ == '__main__':
     test_check()
