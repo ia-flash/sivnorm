@@ -15,6 +15,7 @@ if os.path.exists('./config.ini'):
 else:
     dst_path = os.environ['BASE_MODEL_PATH']
 
+print('bas path for references is : %s'%dst_path)
 ref_marque_modele_path = dict(
         siv=osp.join(dst_path, 'esiv_marque_modele_genre.csv'),
         caradisiac=osp.join(dst_path, 'caradisiac_marque_modele.csv'),
@@ -117,7 +118,7 @@ replace_regex = {
         'SPORT$':''
         }
     }
-    
+
 
 def cleaning(row: dict, column: str):
     """Cleaning function

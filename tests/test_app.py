@@ -65,4 +65,4 @@ def test_check2020():
     check(file='check_2020.csv')
 
 if __name__ == '__main__':
-    test_check()
+    check()
