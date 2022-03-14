@@ -1,10 +1,12 @@
 import sys
+import pathlib
 import pandas as pd
 from io import BytesIO
 from io import StringIO
 from fuzzywuzzy import process, fuzz
 import requests
-sys.path.append('./sivnorm')
+
+sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve() / 'sivnorm'))
 from process import marques_dict
 from app import app
 
