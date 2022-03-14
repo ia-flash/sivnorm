@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
       args:
         http_proxy: ${http_proxy}
-        https_proxy: ${https_proxy}
+        https_proxy: ${http_proxy}
         APP_PORT: ${APP_PORT}
         APP_PATH: /${APP}
     environment:

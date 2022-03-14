@@ -30,10 +30,10 @@ dss:
 	aws s3 cp s3://iaflash/dss ./dss --recursive
 
 dev: config.ini network dss
-	export EXEC_ENV=dev; $(COMPOSE) -f docker-compose-dev.yml up --build 
+	export EXEC_ENV=dev; $(COMPOSE) -f docker-compose-dev.yml up
 
 build: config.ini dss
-	export EXEC_ENV=prod; $(COMPOSE) build
+	export EXEC_ENV=prod; $(COMPOSE) build --no-cache --progress=plain
 
 up: config.ini network dss
 	export EXEC_ENV=prod; $(COMPOSE) up -d

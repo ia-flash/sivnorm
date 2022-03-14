@@ -2,10 +2,14 @@ import os
 import sys
 import json
 import base64
+import pathlib
 import pandas as pd
 from io import StringIO
 from requests_toolbelt.multipart.encoder import MultipartEncoder
-sys.path.append(os.path.join(os.path.dirname(__file__), '../aws_lambda'))
+
+sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve() / 'aws_lambda'))
+sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
+
 from lambda_function import lambda_handler_norm, lambda_handler_clean
 
 

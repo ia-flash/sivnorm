@@ -15,6 +15,7 @@ if os.path.exists('./config.ini'):
 else:
     dst_path = os.environ['BASE_MODEL_PATH']
 
+print('bas path for references is : %s'%dst_path)
 ref_marque_modele_path = dict(
         siv=osp.join(dst_path, 'esiv_marque_modele_genre.csv'),
         caradisiac=osp.join(dst_path, 'caradisiac_marque_modele.csv'),
@@ -36,8 +37,8 @@ def hash_table1(x):
 def hash_table2(x):
     assert 'marque' in ref_marque_modele[x].columns
     assert 'modele' in ref_marque_modele[x].columns
-    assert 'href' in ref_marque_modele[x].columns  # link ref
-    assert 'src' in ref_marque_modele[x].columns  # image ref source
+    #assert 'href' in ref_marque_modele[x].columns  # link ref
+    #assert 'src' in ref_marque_modele[x].columns  # image ref source
     gp = ref_marque_modele[x].groupby(['marque', 'modele'])
     if not (gp.size() == 1).all():
         print("Be careful, your mapping %s is not unique"%x)
@@ -88,12 +89,34 @@ replace_regex = {
         'NON DEFINI|NULL': '',
         'BLUETEC|TDI|CDI': '',
         'BLUETEC|TDI|CDI': '',
-        'REIHE': 'SERIE'
+        'REIHE': 'SERIE',
+        'DIESEL|ESSENCE': ''
     },
     'MERCEDES': {**{reg_class(x): 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X']},
                  **{reg_no_class(x): '%s'%x for x in ['CL', 'GL', 'SL']}},
     'RENAULT': {' ?(SOCIETE)': ''},
-    'BMW': {'(SERIE ?){x}'.format(x=x): '{x}'.format(x=x) for x in ['I', 'M', 'Z', 'X']}
+    'BMW': {**{'(SERIE ?){x}'.format(x=x): '{x}'.format(x=x) for x in ['I', 'M', 'Z', 'X']},
+        'XDRIVE.*?\s' : "" # Remove XDRIVEXXX unitil the next \s
+        },
+    'CITROEN' : {
+        'AIRCROSS': '',
+        'C4 SPACETOURER' : 'C4 PICASSO'
+        },
+    'TOYOTA' : {
+        'PLUS|\+':'',
+                },
+    'VOLKSWAGEN' : {
+        'PLUS|\+':'',
+                },
+    'FIAT': {
+        '(X|L|C)$':'' # Letter at the end is removed
+        },
+    'AUDI': {
+        'SPORTBACK|LIMOUSINE|ALLROAD|QUATRO|AVANT|LIMOUSINE':''
+        },
+    'LAND ROVER': {
+        'SPORT$':''
+        }
     }
 
 
