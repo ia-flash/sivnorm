@@ -90,7 +90,9 @@ replace_regex = {
         'BLUETEC|TDI|CDI': '',
         'BLUETEC|TDI|CDI': '',
         'REIHE': 'SERIE',
-        'DIESEL|ESSENCE': ''
+        'DIESEL|ESSENCE': '',
+        '\s3P\s': '', #3 PORTES
+        '\d+KWH':'' #KWH
     },
     'MERCEDES': {**{reg_class(x): 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X']},
                  **{reg_no_class(x): '%s'%x for x in ['CL', 'GL', 'SL']}},
@@ -107,6 +109,7 @@ replace_regex = {
                 },
     'VOLKSWAGEN' : {
         'PLUS|\+':'',
+        'PASSAT CC':'CC'
                 },
     'FIAT': {
         '(X|L|C)$':'' # Letter at the end is removed
@@ -116,6 +119,9 @@ replace_regex = {
         },
     'LAND ROVER': {
         'SPORT$':''
+        },
+    'OPEL': {
+        '\sX$':'' #  X at the end is removed. eg. GRANDLAND X --> GRANDLAND
         }
     }
 
