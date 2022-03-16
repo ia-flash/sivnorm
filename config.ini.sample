@@ -1,3 +1,3 @@
 [config]
-BASE_MODEL_PATH=/sivnorm/dss/ref2019
-APP_PORT=5002
+BASE_MODEL_PATH=/sivnorm/dss/ref2020
+APP_PORT=7777
