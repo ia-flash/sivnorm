@@ -95,17 +95,23 @@ replace_regex = {
         '\d+KWH':'' #KWH
     },
     'MERCEDES': {**{reg_class(x): 'CLASSE %s'%x for x in ['A','B','C','E','G','S','V','X']},
-                 **{reg_no_class(x): '%s'%x for x in ['CL', 'GL', 'SL']}},
+                 **{reg_no_class(x): '%s'%x for x in ['CL', 'GL', 'SL']}
+                 },
     'RENAULT': {' ?(SOCIETE)': ''},
     'BMW': {**{'(SERIE ?){x}'.format(x=x): '{x}'.format(x=x) for x in ['I', 'M', 'Z', 'X']},
         'XDRIVE.*?\s' : "" # Remove XDRIVEXXX unitil the next \s
         },
+    'PEUGEOT': {
+    'EXPERT TRAVELLER': 'TRAVELLER' # undetermined case -> most recent
+    },
     'CITROEN' : {
         'AIRCROSS': '',
-        'C4 SPACETOURER' : 'C4 PICASSO'
+        'C4 SPACETOURER' : 'C4 PICASSO',
+        'JUMPY SPACE TOURER':'JUMPY' # undetermined case -> most recent
         },
     'TOYOTA' : {
         'PLUS|\+':'',
+        'HYBRID':''
                 },
     'VOLKSWAGEN' : {
         'PLUS|\+':'',
@@ -122,7 +128,16 @@ replace_regex = {
         },
     'OPEL': {
         '\sX$':'' #  X at the end is removed. eg. GRANDLAND X --> GRANDLAND
-        }
+        },
+    'VOLVO': {
+    'CROSS COUNTRY':''
+        },
+    'SEAT': {
+        '\sXL$|\sXL\s':'' # XL is removed at the end or between spaces
+    },
+    'FORD': {
+    'CUSTOM|COURRIER|CONNECT' : ''
+    }
     }
 
 
