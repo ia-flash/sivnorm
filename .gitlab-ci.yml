@@ -6,12 +6,13 @@
 
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
-image: python:latest
+#image: python:latest
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
 variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PIP_CACHE_DIR: "/cache/$CI_PROJECT_NAME/.cache/pip"
+  XDG_CACHE_HOME: "/cache/$CI_PROJECT_NAME/.cache"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/reference/pip_install/#caching
@@ -19,10 +20,6 @@ variables:
 # If you want to also cache the installed packages, you have to install
 # them in a virtualenv and cache it as well.
 
-cache:
-  paths:
-    - .cache/pip
-    - venv/
 
 build_wheel:
   stage: build
@@ -31,7 +28,7 @@ build_wheel:
     - source venv/bin/activate
     - pip3 install -U pip
     - pip3 install wheel
-    - 'sed -ri "s/^python-Levenshtein==0\.12\.0/python-Levenshtein-wheels==0\.13\.2/" requirements.txt ' # Remplace python-Levenshtein-wheels
+    - 'sed -ri "s/^python-Levenshtein==0\.12\.?/python-Levenshtein-wheels==0\.13\.2/" requirements.txt ' # Remplace python-Levenshtein-wheels
     - 'sed -ri "s/^sphinxcontrib-openapi=/#sphinxcontrib-openapi=/" requirements.txt'
     - cat requirements.txt
     - python3 setup.py bdist_wheel
@@ -40,7 +37,8 @@ build_wheel:
       - dist/*.whl
     expire_in: 1 week
   tags:
-    - python-dinp-tscapx004r
+    - docker
+    - python38
   only:
     - tags
 
@@ -55,21 +53,22 @@ upload_wheel:
     - echo Upload wheel
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
   tags:
-    - python-dinp-tscapx004r
-  when: manual
+    - docker
+    - python38
+  only:
+    - tags
 
 
 staging:
   stage: deploy
   variables:
     GIT_STRATEGY: none
-    VERSION_TAG: "1.1"
   script:
     - if [ -z $MODEL_NAME ]; then echo "MODEL_NAME not set"; exit 1; fi
     - if [ -z $MODEL_VERSION ]; then echo "MODEL_VERSION not set"; exit 1; fi
     - if [ -z $INSTALL_DIR ]; then echo "INSTALL_DIR not set"; exit 1; fi
     - if [ -z $APP_PORT ]; then echo "APP_PORT not set"; exit 1; fi
-    - ipath=${INSTALL_DIR}/${VERSION_TAG}
+    - ipath=${INSTALL_DIR}/${CI_COMMIT_TAG}
     - echo Installation dans $ipath
     - rm -rf $ipath
     - python3 -m venv $ipath
@@ -84,7 +83,7 @@ staging:
     - rm -rf ${INSTALL_DIR}/current
     - ln -s $ipath ${INSTALL_DIR}/current
   tags:
-    - python-dinp-tscapx004r
+    - tscapx004r
   
   only:
     - tags
