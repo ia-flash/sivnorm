@@ -19,7 +19,11 @@ variables:
 #
 # If you want to also cache the installed packages, you have to install
 # them in a virtualenv and cache it as well.
-
+stages:
+  - build
+  - publish
+  - deploy
+  - finish
 
 build_wheel:
   stage: build
@@ -28,7 +32,7 @@ build_wheel:
     - source venv/bin/activate
     - pip3 install -U pip
     - pip3 install wheel
-    - 'sed -ri "s/^python-Levenshtein==0\.12\.?/python-Levenshtein-wheels==0\.13\.2/" requirements.txt ' # Remplace python-Levenshtein-wheels
+    - 'sed -ri "s/^python-Levenshtein==0\.12\../python-Levenshtein-wheels==0\.13\.2/" requirements.txt ' # Remplace python-Levenshtein-wheels
     - 'sed -ri "s/^sphinxcontrib-openapi=/#sphinxcontrib-openapi=/" requirements.txt'
     - cat requirements.txt
     - python3 setup.py bdist_wheel
@@ -44,7 +48,7 @@ build_wheel:
 
 
 upload_wheel:
-  stage: deploy
+  stage: publish
   script:
     - python3 -m venv venv
     - source venv/bin/activate
@@ -63,6 +67,9 @@ staging:
   stage: deploy
   variables:
     GIT_STRATEGY: none
+    XDG_CACHE_HOME: /MIDDLE/CALCUL/.cache/
+    PIP_CACHE_DIR: /MIDDLE/CALCUL/.cache/pip
+
   script:
     - if [ -z $MODEL_NAME ]; then echo "MODEL_NAME not set"; exit 1; fi
     - if [ -z $MODEL_VERSION ]; then echo "MODEL_VERSION not set"; exit 1; fi
@@ -84,6 +91,19 @@ staging:
     - ln -s $ipath ${INSTALL_DIR}/current
   tags:
     - tscapx004r
-  
+    - shell
+    - python3
+
+  only:
+    - tags
+
+update_env:
+  stage: finish
+  script:
+    - echo Fin du pipeline et mise à jour environnement gitlab
+  environment:
+    name: staging
+  tags:
+    - general
   only:
     - tags
