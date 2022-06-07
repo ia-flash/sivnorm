@@ -89,6 +89,8 @@ staging:
     - echo -e "[config]\nBASE_MODEL_PATH=$ipath/models\nAPP_PORT=${APP_PORT}\n" > $ipath/config.ini
     - rm -rf ${INSTALL_DIR}/current
     - ln -s $ipath ${INSTALL_DIR}/current
+    # expot PYTHONPATH=.../site-packages/sivnorm
+    # gunicorn -b 0.0.0.0:5002 'sivnorm.app:app'
   tags:
     - tscapx004r
     - shell
