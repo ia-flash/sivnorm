@@ -184,7 +184,7 @@ def cleaning(row: dict, column: str):
     return row
 
 
-tol = dict(marque=0.85, modele=0.7)
+tol = dict(marque=85, modele=70)
 
 
 def fuzzymatch(row, column='marque', table_ref_name='siv'):
@@ -212,7 +212,7 @@ def fuzzymatch(row, column='marque', table_ref_name='siv'):
                             )
 
     except Exception as e:
-        print(e)
+        print("Exception", e)
         print('Error in matching: {}'.format(column))
         print('Input {}'.format(row[column]))
 
@@ -220,6 +220,8 @@ def fuzzymatch(row, column='marque', table_ref_name='siv'):
 
     if score > tol[column]:
         row[column] = match
+    else:
+        row[column] = ''
 
     row['score_%s'%column] = score
 
@@ -311,14 +313,22 @@ def df_process(df, table_ref_name, num_workers):
 
 
 def test_process():
-    row = dict(modele='renault clio', marque='renault')
-    res = fuzzymatch(cleaning(row))
-    assert res == {"marque": "RENAULT", "modele": "CLIO", "score": 1}, res
-    row = dict(modele='', marque='renault')
-    cleaned = cleaning(row)
-    res = fuzzymatch(cleaned)
-    assert res == {"marque": "RENAULT", "modele": "", "score": 0.5}, res
+    row = dict(modele='renault clio', marque='PEUT ETRE BIEN MAIS PAS SUR')
+    row = cleaning(row, 'marque')
+    row = fuzzymatch(row, 'marque', 'siv_caradisiac')
+    row = cleaning(row, 'modele')
+    res = fuzzymatch(row, 'modele', 'siv_caradisiac')
+    assert res == {"marque": "RENAULT", "modele": "CLIO", "score_marque": 100, "score_modele": 100}, res
+    
 
-
+    row = dict(modele='zdzdezdzedzedezdez', marque='renault')
+    row = cleaning(row, 'marque')
+    row = fuzzymatch(row, 'marque', 'siv_caradisiac')
+    row = cleaning(row, 'modele')
+    res = fuzzymatch(row, 'modele', 'siv_caradisiac')
+    assert res == {"marque": "RENAULT", "modele": "CLIO", "score_marque": 100, "score_modele": 100}, res
+    
+    
+    
 if __name__ == '__main__':
     test_process()
